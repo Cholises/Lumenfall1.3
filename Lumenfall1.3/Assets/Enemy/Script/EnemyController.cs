@@ -11,9 +11,16 @@ public class EnemyController : MonoBehaviour
     [Header("Movimiento")]
     public float detectionRadius = 5.0f;
     public float speed = 2.0f;
-    public float stopDistance = 1.5f; // Aumentado para que ataque desde más lejos
+    public float stopDistance = 1.5f;
+    public float patrolSpeed = 1.5f; // Velocidad de patrullaje
+    public float patrolDistance = 3f; // Distancia que recorre en cada dirección
     private Vector2 movement;
-    private bool isKnockedBack = false; // NUEVO: Para saber si está en knockback
+    private bool isKnockedBack = false;
+    
+    // Variables de patrullaje
+    private Vector3 startPosition;
+    private float patrolDirection = 1f; // 1 = derecha, -1 = izquierda
+    private bool isPatrolling = true;
 
     [Header("Combate")]
     public float attackCooldown = 1.5f;
@@ -26,6 +33,16 @@ public class EnemyController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        
+        // IMPORTANTE: Congelar el eje Y para que no caiga y desactivar gravedad
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY;
+            rb.gravityScale = 0; // Desactivar gravedad completamente
+        }
+        
+        // Guardar posición inicial para patrullaje
+        startPosition = transform.position;
         
         // Buscar al jugador automáticamente si no está asignado
         if (player == null)
@@ -45,14 +62,15 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        if (player == null || isDead || isKnockedBack) return; // No actuar durante knockback
+        if (player == null || isDead || isKnockedBack) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // Si está en rango de ataque (cerca)
+        // Si está en rango de ataque (cerca del jugador)
         if (distanceToPlayer <= stopDistance)
         {
             movement = Vector2.zero;
+            isPatrolling = false;
             
             // Activar animación de ataque
             if (animator != null)
@@ -60,9 +78,11 @@ public class EnemyController : MonoBehaviour
                 animator.SetBool("Attack", true);
             }
         }
-        // Si está en rango de detección pero lejos (perseguir)
+        // Si está en rango de detección pero lejos (perseguir al jugador)
         else if (distanceToPlayer < detectionRadius)
         {
+            isPatrolling = false;
+            
             Vector2 direction = (player.position - transform.position).normalized;
             movement = new Vector2(direction.x, 0);
 
@@ -80,8 +100,9 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            // Fuera de rango - idle/vuelo
-            movement = Vector2.zero;
+            // Fuera de rango - patrullar
+            isPatrolling = true;
+            Patrol();
             
             if (animator != null)
             {
@@ -90,12 +111,42 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    void Patrol()
+    {
+        // Calcular la distancia desde la posición inicial
+        float distanceFromStart = transform.position.x - startPosition.x;
+
+        // Cambiar dirección si alcanza el límite de patrullaje
+        if (distanceFromStart >= patrolDistance)
+        {
+            patrolDirection = -1f; // Ir a la izquierda
+            transform.localScale = new Vector3(-2, 2, 1); // Voltear sprite
+        }
+        else if (distanceFromStart <= -patrolDistance)
+        {
+            patrolDirection = 1f; // Ir a la derecha
+            transform.localScale = new Vector3(2, 2, 1); // Voltear sprite
+        }
+
+        // Mover en la dirección de patrullaje
+        movement = new Vector2(patrolDirection * patrolSpeed, 0);
+    }
+
     void FixedUpdate()
     {
-        if (isDead || isKnockedBack) return; // No mover durante knockback
+        if (isDead || isKnockedBack) return;
         
         // Mover en FixedUpdate para mejor física
-        rb.MovePosition(rb.position + movement * speed * Time.fixedDeltaTime);
+        if (isPatrolling)
+        {
+            // Usar velocidad de patrullaje
+            rb.MovePosition(rb.position + movement * Time.fixedDeltaTime);
+        }
+        else
+        {
+            // Usar velocidad normal para perseguir
+            rb.MovePosition(rb.position + movement * speed * Time.fixedDeltaTime);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -144,16 +195,26 @@ public class EnemyController : MonoBehaviour
             Samurai samurai = jugador.GetComponent<Samurai>();
             if (samurai != null)
             {
-                // NUEVO: Activar animación de ataque antes de hacer daño
+                // Activar animación de ataque
                 if (animator != null)
                 {
-                    animator.SetTrigger("Attack"); // Usar trigger en lugar de bool
+                    animator.SetBool("Attack", true);
+                    StartCoroutine(DesactivarAnimacionAtaque());
                 }
                 
                 samurai.RecibeDanio(direccionDanio, 1);
                 lastAttackTime = Time.time;
                 Debug.Log("¡Enemigo atacó al jugador!");
             }
+        }
+    }
+
+    IEnumerator DesactivarAnimacionAtaque()
+    {
+        yield return new WaitForSeconds(0.5f); // Duración de la animación de ataque
+        if (animator != null)
+        {
+            animator.SetBool("Attack", false);
         }
     }
 
@@ -177,19 +238,18 @@ public class EnemyController : MonoBehaviour
             StartCoroutine(ResetHit());
         }
 
-        // Aplicar knockback (empuje hacia atrás)
+        // Aplicar knockback (empuje hacia atrás) SOLO EN EL EJE X
         if (rb != null)
         {
             // Detener el movimiento actual
             movement = Vector2.zero;
             
-            // Calcular dirección opuesta al golpe (solo horizontal para voladores)
+            // Calcular dirección opuesta al golpe (SOLO horizontal para voladores)
             float direccionX = transform.position.x - direccionGolpe.x;
-            Vector2 direccionKnockback = new Vector2(Mathf.Sign(direccionX), 0.3f).normalized;
+            Vector2 direccionKnockback = new Vector2(Mathf.Sign(direccionX), 0).normalized; // Y = 0 para mantenerlo en el aire
             
-            // Aplicar fuerza de empuje más fuerte
-            rb.linearVelocity = Vector2.zero;
-            rb.AddForce(direccionKnockback * knockbackForce, ForceMode2D.Impulse);
+            // Aplicar fuerza de empuje más fuerte SOLO EN X
+            rb.linearVelocity = new Vector2(direccionKnockback.x * knockbackForce, 0);
             
             // Iniciar corrutina para recuperar el control después del knockback
             StartCoroutine(KnockbackRecovery());
@@ -218,7 +278,7 @@ public class EnemyController : MonoBehaviour
         
         // Restaurar movimiento y estado
         speed = tempSpeed;
-        rb.linearVelocity = Vector2.zero; // Detener completamente después del knockback
+        rb.linearVelocity = new Vector2(0, 0); // Detener completamente SOLO en X después del knockback
         isKnockedBack = false;
     }
 
@@ -243,23 +303,39 @@ public class EnemyController : MonoBehaviour
             animator.SetBool("Hit", false);
         }
 
-        // Desactivar componentes
-       rb.linearVelocity = Vector2.zero;
+        // DESCONGELA el eje Y y reactiva la gravedad para que caiga
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Solo mantener rotación congelada
+            rb.gravityScale = 2f; // Activar gravedad para que caiga
+            rb.linearVelocity = new Vector2(0, 0); // Detener movimiento horizontal
+        }
+
+        // Desactivar collider y script
         GetComponent<Collider2D>().enabled = false;
         this.enabled = false;
 
-        Debug.Log("Enemigo ha muerto");
+        Debug.Log("Enemigo ha muerto - cayendo");
 
-        // Destruir después de la animación
-        Destroy(gameObject, 2f); // Ajusta el tiempo según tu animación
+        // Destruir después de caer y animación
+        Destroy(gameObject, 3f); // Más tiempo para que caiga
     }
 
     void OnDrawGizmosSelected()
     {
+        // Radio de detección (rojo)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
         
+        // Distancia de ataque (amarillo)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, stopDistance);
+        
+        // Área de patrullaje (verde)
+        Gizmos.color = Color.green;
+        Vector3 patrolStart = Application.isPlaying ? startPosition : transform.position;
+        Gizmos.DrawLine(patrolStart + Vector3.left * patrolDistance, patrolStart + Vector3.right * patrolDistance);
+        Gizmos.DrawWireSphere(patrolStart + Vector3.left * patrolDistance, 0.2f);
+        Gizmos.DrawWireSphere(patrolStart + Vector3.right * patrolDistance, 0.2f);
     }
 }
