@@ -96,28 +96,25 @@ public class Samurai : MonoBehaviour
             // Si no puede moverse, detener animación
             animator.SetFloat("Movement", 0);
         }
-
-        // Estos siempre disponibles para debug
-        if (Input.GetKeyDown(KeyCode.H))
-            StartCoroutine(HurtRutina());
-
-        if (Input.GetKeyDown(KeyCode.L))
-            Morir();
     }
     
     public void RecibeDanio(Vector2 direccion, int cantDanio)
     {
-        if(recibiendoDanio)
+        if (!recibiendoDanio && !estaMuerto)
         {
-            recibiendoDanio = true;
+            StopCoroutine("HurtRutina"); // Detener cualquier rutina anterior
+            StartCoroutine(HurtRutina());
             Vector2 rebote = new Vector2(transform.position.x - direccion.x, 1).normalized;
-            rb.AddForce(rebote, ForceMode2D.Impulse);
+            rb.AddForce(rebote * 5f, ForceMode2D.Impulse);
         }
     }
 
     public void DesactivaDanio()
     {
+        StopCoroutine("HurtRutina");
         recibiendoDanio = false;
+        puedeMover = true;
+        animator.SetBool("recibeDanio", false);
     }
 
     void DashLigero()
@@ -137,10 +134,13 @@ public class Samurai : MonoBehaviour
     {
         if (estaMuerto) yield break;
 
+        recibiendoDanio = true;
         puedeMover = false;
         animator.SetTrigger("Hurt");
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
+        
+        recibiendoDanio = false;
         puedeMover = true;
     }
 

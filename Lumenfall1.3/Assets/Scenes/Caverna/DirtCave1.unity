@@ -20181,7 +20181,7 @@ Transform:
   m_GameObject: {fileID: 1103032378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -29.963486, y: -3.07103, z: -7}
+  m_LocalPosition: {x: -29.565554, y: -3.07103, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21298,7 +21298,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -21361,6 +21361,8 @@ MonoBehaviour:
   player: {fileID: 6594727278887669658}
   detectionRadius: 3
   speed: 2
+  attackCooldown: 1.5
+  stopDistance: 1
 --- !u!1001 &722593035255551950
 PrefabInstance:
   m_ObjectHideFlags: 0
