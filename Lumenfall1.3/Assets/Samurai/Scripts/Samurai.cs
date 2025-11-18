@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class Samurai : MonoBehaviour
@@ -6,16 +7,20 @@ public class Samurai : MonoBehaviour
     [Header("Movimiento")]
     public float velocidad = 5f;
     public float fuerzaSalto = 10f;
-    public float longitudRaycast = 0.1f; // 🔹 Más corto y preciso
+    public float longitudRaycast = 0.1f;
     public LayerMask capaSuelo;
 
     [Header("Ataque")]
-    public float dashFuerza = 4f; // 🔹 Fuerza del dash al atacar
+    public float dashFuerza = 4f;
 
     [Header("Referencias")]
     public Animator animator;
+    public Rigidbody2D rb;
 
-    private Rigidbody2D rb;
+    [Header("Control de Nivel")]
+    public float originalGravityScale = 1f;
+    public int disableControlCounter = 0;
+
     private bool enSuelo;
     private bool atacando;
     private bool atacando2;
@@ -24,75 +29,78 @@ public class Samurai : MonoBehaviour
 
     private Vector3 posicionInicial;
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         if (animator == null)
             animator = GetComponent<Animator>();
 
-        posicionInicial = transform.position; // 🔹 Guarda la posición inicial del personaje
+        if (rb != null)
+            originalGravityScale = rb.gravityScale;
+
+        posicionInicial = transform.position;
+    }
+
+    void Start()
+    {
+        // Código adicional si lo necesitas
     }
 
     void Update()
     {
         if (estaMuerto) return;
 
-        // Detectar suelo con raycast desde los pies
         Vector2 origenRaycast = new Vector2(transform.position.x, transform.position.y - 0.5f);
         RaycastHit2D hit = Physics2D.Raycast(origenRaycast, Vector2.down, longitudRaycast, capaSuelo);
         enSuelo = hit.collider != null;
         animator.SetBool("ensuelo", enSuelo);
 
-        // Movimiento horizontal
-        float inputX = Input.GetAxisRaw("Horizontal");
-        float movimiento = inputX * velocidad * Time.deltaTime;
-        animator.SetFloat("Movement", Mathf.Abs(inputX));
-
-        if (inputX < 0)
-            transform.localScale = new Vector3(-1, 1, 1);
-        else if (inputX > 0)
-            transform.localScale = new Vector3(1, 1, 1);
-
-        if (puedeMover)
+        // IMPORTANTE: Solo leer input si puede moverse
+        if (puedeMover && disableControlCounter <= 0)
         {
+            float inputX = Input.GetAxisRaw("Horizontal");
+            float movimiento = inputX * velocidad * Time.deltaTime;
+
+            animator.SetFloat("Movement", Mathf.Abs(inputX));
+
+            if (inputX < 0) transform.localScale = new Vector3(-2, 2, 1);
+            else if (inputX > 0) transform.localScale = new Vector3(2, 2, 1);
+
             transform.position += new Vector3(movimiento, 0, 0);
-        }
 
-        // Salto (solo cuando está en el suelo)
-        if (Input.GetKeyDown(KeyCode.Space) && enSuelo && puedeMover)
+            if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
+            }
+
+            if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2)
+            {
+                atacando = true;
+                animator.SetTrigger("Ataque");
+                StartCoroutine(FinAtaque(0.5f));
+            }
+
+            if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2)
+            {
+                atacando2 = true;
+                animator.SetTrigger("Ataque2");
+                DashLigero();
+                StartCoroutine(FinAtaque(0.7f));
+            }
+        }
+        else
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-            rb.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
+            // Si no puede moverse, detener animación
+            animator.SetFloat("Movement", 0);
         }
 
-        // ATAQUE 1 (J) con dash
-        if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2 && puedeMover)
-        {
-            atacando = true;
-            animator.SetTrigger("Ataque");
-            StartCoroutine(FinAtaque(0.5f));
-        }
-
-        // ATAQUE 2 (K) con dash
-        if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2 && puedeMover)
-        {
-            atacando2 = true;
-            animator.SetTrigger("Ataque2");
-            DashLigero();
-            StartCoroutine(FinAtaque(0.7f));
-        }
-
-        // HURT (H)
+        // Estos siempre disponibles para debug
         if (Input.GetKeyDown(KeyCode.H))
-        {
             StartCoroutine(HurtRutina());
-        }
 
-        // DEATH (L)
         if (Input.GetKeyDown(KeyCode.L))
-        {
             Morir();
-        }
     }
 
     void DashLigero()
@@ -101,9 +109,9 @@ public class Samurai : MonoBehaviour
         rb.linearVelocity = new Vector2(direccion * dashFuerza, rb.linearVelocity.y);
     }
 
-    IEnumerator FinAtaque(float tiempo)
+    IEnumerator FinAtaque(float t)
     {
-        yield return new WaitForSeconds(tiempo);
+        yield return new WaitForSeconds(t);
         atacando = false;
         atacando2 = false;
     }
@@ -130,27 +138,19 @@ public class Samurai : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
-        StartCoroutine(RespawnDespues(2f)); // Espera a que termine la animación
+        StartCoroutine(RespawnDespues(2f));
     }
 
-    IEnumerator RespawnDespues(float tiempo)
+    IEnumerator RespawnDespues(float t)
     {
-        yield return new WaitForSeconds(tiempo);
+        yield return new WaitForSeconds(t);
 
         rb.constraints = RigidbodyConstraints2D.None;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        transform.position = posicionInicial; // 🔹 Reaparece donde lo colocaste
+        transform.position = posicionInicial;
         estaMuerto = false;
         puedeMover = true;
         animator.Play("Idle");
-    }
-
-    void OnDrawGizmos()
-    {
-        // 🔹 Visualiza el raycast desde los pies
-        Vector2 origenRaycast = new Vector2(transform.position.x, transform.position.y - 0.5f);
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(origenRaycast, origenRaycast + Vector2.down * longitudRaycast);
     }
 }
