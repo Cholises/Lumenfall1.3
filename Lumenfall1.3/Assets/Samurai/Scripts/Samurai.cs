@@ -22,6 +22,7 @@ public class Samurai : MonoBehaviour
     public int disableControlCounter = 0;
 
     private bool enSuelo;
+    private bool recibiendoDanio;
     private bool atacando;
     private bool atacando2;
     private bool estaMuerto;
@@ -54,6 +55,7 @@ public class Samurai : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(origenRaycast, Vector2.down, longitudRaycast, capaSuelo);
         enSuelo = hit.collider != null;
         animator.SetBool("ensuelo", enSuelo);
+        animator.SetBool("recibeDanio", recibiendoDanio);
 
         // IMPORTANTE: Solo leer input si puede moverse
         if (puedeMover && disableControlCounter <= 0)
@@ -101,6 +103,21 @@ public class Samurai : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.L))
             Morir();
+    }
+    
+    public void RecibeDanio(Vector2 direccion, int cantDanio)
+    {
+        if(recibiendoDanio)
+        {
+            recibiendoDanio = true;
+            Vector2 rebote = new Vector2(transform.position.x - direccion.x, 1).normalized;
+            rb.AddForce(rebote, ForceMode2D.Impulse);
+        }
+    }
+
+    public void DesactivaDanio()
+    {
+        recibiendoDanio = false;
     }
 
     void DashLigero()

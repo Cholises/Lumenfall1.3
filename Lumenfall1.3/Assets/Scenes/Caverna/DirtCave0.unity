@@ -12104,12 +12104,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0314d38591c227740abb80002df00d3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyboardText: {fileID: 0}
-  xboxText: {fileID: 0}
-  ps4Text: {fileID: 0}
-  connectedDevices: []
-  Xbox_One_Controller: 0
-  PS4_Controller: 0
 --- !u!1 &644002071
 GameObject:
   m_ObjectHideFlags: 0
@@ -12168,7 +12162,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Use arrow key to move
+  m_text: 'Usa el movimiento con A para <-
+
+    y D para ->'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
