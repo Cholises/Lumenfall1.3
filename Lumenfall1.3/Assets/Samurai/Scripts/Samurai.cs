@@ -11,7 +11,8 @@ public class Samurai : MonoBehaviour
     public LayerMask capaSuelo;
 
     [Header("Ataque")]
-    public float dashFuerza = 4f;
+    public float dashFuerza = 7f; // Aumentado para más alcance en ataque 2
+    public SwordHitbox swordHitbox; // NUEVO: Referencia a la hitbox de la espada
 
     [Header("Referencias")]
     public Animator animator;
@@ -40,11 +41,25 @@ public class Samurai : MonoBehaviour
             originalGravityScale = rb.gravityScale;
 
         posicionInicial = transform.position;
+
+        // NUEVO: Buscar automáticamente la hitbox de la espada si no está asignada
+        if (swordHitbox == null)
+        {
+            swordHitbox = GetComponentInChildren<SwordHitbox>();
+            if (swordHitbox == null)
+            {
+                Debug.LogWarning("No se encontró SwordHitbox en los hijos del Samurai");
+            }
+        }
     }
 
     void Start()
     {
-        // Código adicional si lo necesitas
+        // Asegurarse de que la hitbox esté desactivada al inicio
+        if (swordHitbox != null)
+        {
+            swordHitbox.DesactivarHitbox();
+        }
     }
 
     void Update()
@@ -80,7 +95,7 @@ public class Samurai : MonoBehaviour
             {
                 atacando = true;
                 animator.SetTrigger("Ataque");
-                StartCoroutine(FinAtaque(0.5f));
+                StartCoroutine(FinAtaque(0.5f, 1)); // MODIFICADO: Pasar tipo de ataque
             }
 
             if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2)
@@ -88,7 +103,7 @@ public class Samurai : MonoBehaviour
                 atacando2 = true;
                 animator.SetTrigger("Ataque2");
                 DashLigero();
-                StartCoroutine(FinAtaque(0.7f));
+                StartCoroutine(FinAtaque(0.9f, 2)); // Aumentado para que la hitbox dure más
             }
         }
         else
@@ -102,7 +117,7 @@ public class Samurai : MonoBehaviour
     {
         if (!recibiendoDanio && !estaMuerto)
         {
-            StopCoroutine("HurtRutina"); // Detener cualquier rutina anterior
+            StopCoroutine("HurtRutina");
             StartCoroutine(HurtRutina());
             Vector2 rebote = new Vector2(transform.position.x - direccion.x, 1).normalized;
             rb.AddForce(rebote * 5f, ForceMode2D.Impulse);
@@ -123,9 +138,28 @@ public class Samurai : MonoBehaviour
         rb.linearVelocity = new Vector2(direccion * dashFuerza, rb.linearVelocity.y);
     }
 
-    IEnumerator FinAtaque(float t)
+    // MODIFICADO: Ahora incluye la activación/desactivación de la hitbox con tipo de daño
+    IEnumerator FinAtaque(float t, int tipoAtaque)
     {
-        yield return new WaitForSeconds(t);
+        // Activar hitbox al inicio del ataque con el tipo de daño correspondiente
+        if (swordHitbox != null)
+        {
+            int danio = (tipoAtaque == 2) ? swordHitbox.danioAtaque2 : swordHitbox.danioAtaque1;
+            swordHitbox.ActivarHitbox(danio);
+        }
+
+        // Esperar un frame para que la animación empiece
+        yield return new WaitForSeconds(0.1f);
+
+        // Mantener activa durante el tiempo de ataque
+        yield return new WaitForSeconds(t - 0.1f);
+
+        // Desactivar hitbox
+        if (swordHitbox != null)
+        {
+            swordHitbox.DesactivarHitbox();
+        }
+
         atacando = false;
         atacando2 = false;
     }
