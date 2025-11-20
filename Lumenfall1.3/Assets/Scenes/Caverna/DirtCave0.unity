@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &298522050
+--- !u!1001 &25404843
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -130,6 +130,18 @@ PrefabInstance:
     - target: {fileID: 6262135476299669594, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7293981214859456871, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 16.8574
+      objectReference: {fileID: 0}
+    - target: {fileID: 7293981214859456871, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 9.7941
+      objectReference: {fileID: 0}
+    - target: {fileID: 7293981214859456871, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 2.399994
       objectReference: {fileID: 0}
     - target: {fileID: 8795152383108834738, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
       propertyPath: m_Pivot.x
@@ -12341,6 +12353,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
+--- !u!114 &1067519110 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7427883519348364265, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
+  m_PrefabInstance: {fileID: 25404843}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1103032378
 GameObject:
   m_ObjectHideFlags: 0
@@ -12874,6 +12897,17 @@ MonoBehaviour:
   targetSceneName: DirtCave1
   spawnPointName: Entry0
   playerTag: Player
+--- !u!114 &1791526985 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2761217295388415972, guid: 73e89107d8b619e499e018a3f66f36ad, type: 3}
+  m_PrefabInstance: {fileID: 25404843}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1807428004
 GameObject:
   m_ObjectHideFlags: 0
@@ -12932,6 +12966,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Samurai
       objectReference: {fileID: 0}
+    - target: {fileID: 2924670154500926706, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+      propertyPath: swordHitbox
+      value: 
+      objectReference: {fileID: 1819570948}
     - target: {fileID: 6963204558117419750, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.12541133
@@ -12975,8 +13013,58 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2183978722150804891, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1819570946}
   m_SourcePrefab: {fileID: 100100000, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+--- !u!1 &1819570945 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2183978722150804891, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+  m_PrefabInstance: {fileID: 1819570944}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1819570946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819570945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cda0d3cb3d83eb408d8cbb70793601e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBar
+  samurai: {fileID: 1819570947}
+  barraVida: {fileID: 1067519110}
+  barraFondo: {fileID: 1791526985}
+  colorVidaAlta: {r: 1, g: 0, b: 0, a: 1}
+  colorVidaMedia: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorVidaBaja: {r: 1, g: 0, b: 0, a: 1}
+  usarAnimacionSuave: 1
+  velocidadAnimacion: 5
+--- !u!114 &1819570947 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2924670154500926706, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+  m_PrefabInstance: {fileID: 1819570944}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819570945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c7553a3070edc41b2ee14e89b3a6d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Samurai
+--- !u!114 &1819570948 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7076440264218268257, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+  m_PrefabInstance: {fileID: 1819570944}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27905b6a000948f4b878664841240410, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SwordHitbox
 --- !u!1001 &1878690495
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13189,4 +13277,4 @@ SceneRoots:
   - {fileID: 4786680144620467831}
   - {fileID: 1894009398}
   - {fileID: 1819570944}
-  - {fileID: 298522050}
+  - {fileID: 25404843}
