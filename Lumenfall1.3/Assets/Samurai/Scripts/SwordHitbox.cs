@@ -2,56 +2,43 @@ using UnityEngine;
 
 public class SwordHitbox : MonoBehaviour
 {
-    public int danioAtaque1 = 1; // Daño del ataque J
-    public int danioAtaque2 = 2; // Daño del ataque K (más fuerte)
+    public int danioAtaque1 = 1;
+    public int danioAtaque2 = 2;
     private bool puedeGolpear = false;
-    private int danioActual = 1; // El daño que se aplicará actualmente
+    private int danioActual = 1;
 
-    // El Samurai llamará este método cuando empiece el ataque
     public void ActivarHitbox(int tipoDanio = 1)
     {
         puedeGolpear = true;
         danioActual = tipoDanio;
-        Debug.Log($"✅ Hitbox ACTIVADA - Daño: {danioActual}");
     }
 
-    // El Samurai llamará este método cuando termine el ataque
     public void DesactivarHitbox()
     {
         puedeGolpear = false;
-        Debug.Log("❌ Hitbox DESACTIVADA");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log($"★★★ Sword tocó: {collision.gameObject.name}, Tag: {collision.tag}, PuedeGolpear: {puedeGolpear} ★★★");
-        
-        if (!puedeGolpear)
-        {
-            Debug.LogWarning("⚠️ La hitbox NO está activa - No se puede hacer daño");
-            return;
-        }
+        if (!puedeGolpear) return;
 
-        // Detectar enemigo
         if (collision.CompareTag("Enemy"))
         {
-            Debug.Log("✅ ¡Es un enemigo!");
+            Vector2 posicionJugador = transform.root.position;
+            
+            // Detectar enemigo volador
             EnemyController enemy = collision.GetComponent<EnemyController>();
             if (enemy != null)
             {
-                // Pasar la posición del jugador para calcular la dirección del knockback
-                Vector2 posicionJugador = transform.root.position; // Root es el Samurai
                 enemy.TakeDamage(danioActual, posicionJugador);
-                Debug.Log($"💥 ¡Golpeaste al enemigo! Daño: {danioActual}, Posición jugador: {posicionJugador}");
             }
-            else
+            
+            // Detectar Mushroom
+            Mushroom mushroom = collision.GetComponent<Mushroom>();
+            if (mushroom != null)
             {
-                Debug.LogError("❌ El objeto con tag Enemy NO tiene el script EnemyController");
+                mushroom.TakeDamage(danioActual, posicionJugador);
             }
-        }
-        else
-        {
-            Debug.LogWarning($"⚠️ NO es enemigo. Tag encontrado: '{collision.tag}' (esperaba 'Enemy')");
         }
     }
 }

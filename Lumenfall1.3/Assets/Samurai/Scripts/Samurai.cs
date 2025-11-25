@@ -6,18 +6,16 @@ public class Samurai : MonoBehaviour
 {
     [Header("Movimiento")]
     public float velocidad = 5f;
-    public float fuerzaSalto = 10f;
-    public float longitudRaycast = 0.1f;
-    public LayerMask capaSuelo;
+    public float fuerzaSalto = 15f;
 
     [Header("Ataque")]
     public float dashFuerza = 7f;
-    public SwordHitbox swordHitbox; // Referencia a la hitbox de la espada
+    public SwordHitbox swordHitbox;
 
     [Header("Vida")]
     public int vidaMaxima = 3;
     private int vidaActual;
-    public HealthBar healthBar; // NUEVO: Referencia a la barra de vida para animaciones
+    public HealthBar healthBar;
 
     [Header("Referencias")]
     public Animator animator;
@@ -27,6 +25,7 @@ public class Samurai : MonoBehaviour
     public float originalGravityScale = 1f;
     public int disableControlCounter = 0;
 
+    private int contadorColisionesSuelo = 0; // NUEVO: Contar colisiones con suelo
     private bool enSuelo;
     private bool recibiendoDanio;
     private bool atacando;
@@ -35,7 +34,7 @@ public class Samurai : MonoBehaviour
     private bool puedeMover = true;
 
     private Vector3 posicionInicial;
-    private Coroutine ataqueActual; // Guardar referencia a la corrutina de ataque
+    private Coroutine ataqueActual;
 
     void Awake()
     {
@@ -48,7 +47,6 @@ public class Samurai : MonoBehaviour
 
         posicionInicial = transform.position;
 
-        // Buscar automáticamente la hitbox de la espada
         if (swordHitbox == null)
         {
             swordHitbox = GetComponentInChildren<SwordHitbox>();
@@ -61,17 +59,14 @@ public class Samurai : MonoBehaviour
 
     void Start()
     {
-        // Inicializar vida
         vidaActual = vidaMaxima;
         Debug.Log($"Samurai inició con {vidaActual} puntos de vida");
 
-        // Buscar automáticamente la barra de vida si no está asignada
         if (healthBar == null)
         {
             healthBar = FindFirstObjectByType<HealthBar>();
         }
 
-        // Asegurarse de que la hitbox esté desactivada al inicio
         if (swordHitbox != null)
         {
             swordHitbox.DesactivarHitbox();
@@ -82,12 +77,10 @@ public class Samurai : MonoBehaviour
     {
         if (estaMuerto) return;
 
-        Vector2 origenRaycast = new Vector2(transform.position.x, transform.position.y - 0.5f);
-        RaycastHit2D hit = Physics2D.Raycast(origenRaycast, Vector2.down, longitudRaycast, capaSuelo);
-        enSuelo = hit.collider != null;
+        // Actualizar estado de suelo basado en colisiones
+        enSuelo = contadorColisionesSuelo > 0;
         animator.SetBool("ensuelo", enSuelo);
 
-        // IMPORTANTE: Solo leer input si puede moverse
         if (puedeMover && disableControlCounter <= 0)
         {
             float inputX = Input.GetAxisRaw("Horizontal");
@@ -100,6 +93,7 @@ public class Samurai : MonoBehaviour
 
             transform.position += new Vector3(movimiento, 0, 0);
 
+            // SALTO: Solo cuando está tocando el suelo (colisión activa)
             if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
@@ -123,34 +117,46 @@ public class Samurai : MonoBehaviour
         }
         else
         {
-            // Si no puede moverse, detener animación
             animator.SetFloat("Movement", 0);
         }
+    }
+
+    // NUEVO: Detectar cuando toca el suelo
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Verificar si la colisión viene desde abajo (está aterrizando)
+        if (collision.contacts[0].normal.y > 0.5f)
+        {
+            contadorColisionesSuelo++;
+        }
+    }
+
+    // NUEVO: Detectar cuando deja de tocar el suelo
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        contadorColisionesSuelo--;
+        if (contadorColisionesSuelo < 0) contadorColisionesSuelo = 0;
     }
     
     public void RecibeDanio(Vector2 direccion, int cantDanio)
     {
         if (!recibiendoDanio && !estaMuerto)
         {
-            // Reducir vida
             vidaActual -= cantDanio;
             Debug.Log($"💔 Samurai recibió {cantDanio} de daño. Vida restante: {vidaActual}/{vidaMaxima}");
 
-            // Animar la barra de vida si existe
             if (healthBar != null)
             {
                 healthBar.AnimarDanio();
             }
 
-            // Verificar si murió
             if (vidaActual <= 0)
             {
-                vidaActual = 0; // Asegurar que no sea negativa
+                vidaActual = 0;
                 Morir();
                 return;
             }
 
-            // Si no murió, aplicar daño normal (pero NO cancelar ataque)
             StartCoroutine(HurtRutina());
             Vector2 rebote = new Vector2(transform.position.x - direccion.x, 1).normalized;
             rb.AddForce(rebote * 5f, ForceMode2D.Impulse);
@@ -169,20 +175,16 @@ public class Samurai : MonoBehaviour
         rb.linearVelocity = new Vector2(direccion * dashFuerza, rb.linearVelocity.y);
     }
 
-    // Gestiona la hitbox durante el ataque - NO se detiene aunque recibas daño
     IEnumerator FinAtaque(float t, int tipoAtaque)
     {
-        // Activar hitbox al inicio del ataque
         if (swordHitbox != null)
         {
             int danio = (tipoAtaque == 2) ? 2 : 1;
             swordHitbox.ActivarHitbox(danio);
         }
 
-        // Esperar tiempo del ataque
         yield return new WaitForSeconds(t);
 
-        // Desactivar hitbox al terminar
         if (swordHitbox != null)
         {
             swordHitbox.DesactivarHitbox();
@@ -213,7 +215,6 @@ public class Samurai : MonoBehaviour
         estaMuerto = true;
         puedeMover = false;
 
-        // Detener cualquier ataque en progreso
         if (ataqueActual != null)
         {
             StopCoroutine(ataqueActual);
@@ -242,15 +243,14 @@ public class Samurai : MonoBehaviour
         puedeMover = true;
         atacando = false;
         atacando2 = false;
+        contadorColisionesSuelo = 0; // Resetear contador
         
-        // Restaurar vida completa
         vidaActual = vidaMaxima;
         Debug.Log($"Samurai respawneó con {vidaActual} puntos de vida");
         
         animator.Play("Idle");
     }
 
-    // Métodos públicos para gestionar vida (para UI, power-ups, etc.)
     public void Curar(int cantidad)
     {
         vidaActual = Mathf.Min(vidaActual + cantidad, vidaMaxima);

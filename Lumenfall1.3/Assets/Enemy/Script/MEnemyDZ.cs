@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class MEnemyDZ : MonoBehaviour
 {
-    private Mushroom Mushroom;
+    private Mushroom mushroom;
 
     void Start()
     {
-        Mushroom = GetComponentInParent<Mushroom>();
+        mushroom = GetComponentInParent<Mushroom>();
         
-        if (Mushroom == null)
+        if (mushroom == null)
             Debug.LogError("EnemyDamageZone no encontró el script Mushroom en el padre!");
 
         // Evitar errores por escalas del padre
@@ -20,9 +20,9 @@ public class MEnemyDZ : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && Mushroom != null)
+        if (collision.CompareTag("Player") && mushroom != null)
         {
-            Mushroom.AtacarJugador(collision);
+            mushroom.AtacarJugador(collision);
         }
     }
 
