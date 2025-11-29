@@ -4,12 +4,12 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     [Header("Referencias")]
-    public Samurai samurai; // Referencia al jugador
-    public Image barraVida; // La imagen roja que se reduce
-    public Image barraFondo; // Opcional: fondo gris/negro
+    public Samurai samurai;
+    public Image barraVida;
+    public Image barraFondo;
 
     [Header("Colores")]
-    public Color colorVidaAlta = Color.red;      // CAMBIADO: Rojo cuando está llena
+    public Color colorVidaAlta = Color.red;
     public Color colorVidaMedia = Color.yellow;
     public Color colorVidaBaja = Color.red;
 
@@ -21,7 +21,6 @@ public class HealthBar : MonoBehaviour
 
     void Start()
     {
-        // Buscar automáticamente al Samurai si no está asignado
         if (samurai == null)
         {
             samurai = FindFirstObjectByType<Samurai>();
@@ -32,12 +31,18 @@ public class HealthBar : MonoBehaviour
             }
         }
 
-        // Inicializar la barra llena y ROJA
-        if (barraVida != null)
+        // CORREGIDO: Inicializar con la vida ACTUAL del Samurai
+        if (barraVida != null && samurai != null)
         {
-            barraVida.fillAmount = 1f;
-            barraVida.color = colorVidaAlta; // NUEVO: Asegurar que empiece roja
-            vidaObjetivo = 1f;
+            float vidaActual = samurai.ObtenerVidaActual();
+            float vidaMaxima = samurai.ObtenerVidaMaxima();
+            float porcentajeVida = vidaActual / vidaMaxima;
+            
+            barraVida.fillAmount = porcentajeVida; // Cambio importante aquí
+            barraVida.color = colorVidaAlta;
+            vidaObjetivo = porcentajeVida; // Y aquí
+            
+            Debug.Log($"HealthBar inicializada: {vidaActual}/{vidaMaxima} = {porcentajeVida}");
         }
     }
 
@@ -45,12 +50,10 @@ public class HealthBar : MonoBehaviour
     {
         if (samurai == null || barraVida == null) return;
 
-        // Calcular el porcentaje de vida
         float vidaActual = samurai.ObtenerVidaActual();
         float vidaMaxima = samurai.ObtenerVidaMaxima();
         vidaObjetivo = vidaActual / vidaMaxima;
 
-        // Animar la barra suavemente o cambiar instantáneamente
         if (usarAnimacionSuave)
         {
             barraVida.fillAmount = Mathf.Lerp(barraVida.fillAmount, vidaObjetivo, Time.deltaTime * velocidadAnimacion);
@@ -60,35 +63,15 @@ public class HealthBar : MonoBehaviour
             barraVida.fillAmount = vidaObjetivo;
         }
 
-        // Cambiar color según la vida
         ActualizarColor();
     }
 
     void ActualizarColor()
     {
         if (barraVida == null) return;
-
-        // SIEMPRE mantener la barra ROJA sin importar la vida
         barraVida.color = Color.red;
-        
-        /* CÓDIGO ANTERIOR (causaba el problema):
-        // Cambiar color según el porcentaje de vida
-        if (vidaObjetivo > 0.6f)
-        {
-            barraVida.color = colorVidaAlta; // Verde si tiene más del 60%
-        }
-        else if (vidaObjetivo > 0.3f)
-        {
-            barraVida.color = colorVidaMedia; // Amarillo entre 30%-60%
-        }
-        else
-        {
-            barraVida.color = colorVidaBaja; // Rojo si tiene menos del 30%
-        }
-        */
     }
 
-    // Método opcional para hacer que la barra parpadee cuando recibe daño
     public void AnimarDanio()
     {
         StartCoroutine(ParpadeoDanio());
@@ -100,7 +83,6 @@ public class HealthBar : MonoBehaviour
 
         Color colorOriginal = barraVida.color;
         
-        // Parpadear 3 veces
         for (int i = 0; i < 3; i++)
         {
             barraVida.color = Color.white;

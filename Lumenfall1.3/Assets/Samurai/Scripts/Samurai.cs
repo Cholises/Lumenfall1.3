@@ -13,7 +13,7 @@ public class Samurai : MonoBehaviour
     public SwordHitbox swordHitbox;
 
     [Header("Vida")]
-    public int vidaMaxima = 3;
+    public int vidaMaxima = 5;
     private int vidaActual;
     public HealthBar healthBar;
 
@@ -25,7 +25,6 @@ public class Samurai : MonoBehaviour
     public float originalGravityScale = 1f;
     public int disableControlCounter = 0;
 
-    private int contadorColisionesSuelo = 0; // NUEVO: Contar colisiones con suelo
     private bool enSuelo;
     private bool recibiendoDanio;
     private bool atacando;
@@ -59,8 +58,17 @@ public class Samurai : MonoBehaviour
 
     void Start()
     {
-        vidaActual = vidaMaxima;
-        Debug.Log($"Samurai inició con {vidaActual} puntos de vida");
+        if (GameManager.Instance != null)
+        {
+            vidaMaxima = GameManager.Instance.vidaMaximaJugador;
+            vidaActual = GameManager.Instance.vidaActualJugador;
+            Debug.Log($"Samurai cargó vida: {vidaActual}/{vidaMaxima}");
+        }
+        else
+        {
+            vidaActual = vidaMaxima;
+            Debug.Log($"Samurai inició con vida por defecto: {vidaActual}/{vidaMaxima}");
+        }
 
         if (healthBar == null)
         {
@@ -77,8 +85,10 @@ public class Samurai : MonoBehaviour
     {
         if (estaMuerto) return;
 
-        // Actualizar estado de suelo basado en colisiones
-        enSuelo = contadorColisionesSuelo > 0;
+        Vector2 origenRaycast = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        RaycastHit2D hit = Physics2D.Raycast(origenRaycast, Vector2.down, 0.2f);
+        enSuelo = hit.collider != null;
+        
         animator.SetBool("ensuelo", enSuelo);
 
         if (puedeMover && disableControlCounter <= 0)
@@ -93,8 +103,8 @@ public class Samurai : MonoBehaviour
 
             transform.position += new Vector3(movimiento, 0, 0);
 
-            // SALTO: Solo cuando está tocando el suelo (colisión activa)
-            if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
+            // Verificar velocidad vertical para evitar salto múltiple
+            if (Input.GetKeyDown(KeyCode.Space) && enSuelo && Mathf.Abs(rb.linearVelocity.y) < 0.1f)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
                 rb.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
@@ -120,29 +130,18 @@ public class Samurai : MonoBehaviour
             animator.SetFloat("Movement", 0);
         }
     }
-
-    // NUEVO: Detectar cuando toca el suelo
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        // Verificar si la colisión viene desde abajo (está aterrizando)
-        if (collision.contacts[0].normal.y > 0.5f)
-        {
-            contadorColisionesSuelo++;
-        }
-    }
-
-    // NUEVO: Detectar cuando deja de tocar el suelo
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        contadorColisionesSuelo--;
-        if (contadorColisionesSuelo < 0) contadorColisionesSuelo = 0;
-    }
     
     public void RecibeDanio(Vector2 direccion, int cantDanio)
     {
         if (!recibiendoDanio && !estaMuerto)
         {
             vidaActual -= cantDanio;
+            
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.vidaActualJugador = vidaActual;
+            }
+            
             Debug.Log($"💔 Samurai recibió {cantDanio} de daño. Vida restante: {vidaActual}/{vidaMaxima}");
 
             if (healthBar != null)
@@ -243,9 +242,13 @@ public class Samurai : MonoBehaviour
         puedeMover = true;
         atacando = false;
         atacando2 = false;
-        contadorColisionesSuelo = 0; // Resetear contador
         
         vidaActual = vidaMaxima;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.vidaActualJugador = vidaActual;
+        }
+        
         Debug.Log($"Samurai respawneó con {vidaActual} puntos de vida");
         
         animator.Play("Idle");
@@ -254,6 +257,12 @@ public class Samurai : MonoBehaviour
     public void Curar(int cantidad)
     {
         vidaActual = Mathf.Min(vidaActual + cantidad, vidaMaxima);
+        
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.vidaActualJugador = vidaActual;
+        }
+        
         Debug.Log($"Samurai curado. Vida actual: {vidaActual}/{vidaMaxima}");
     }
 
@@ -265,5 +274,12 @@ public class Samurai : MonoBehaviour
     public int ObtenerVidaMaxima()
     {
         return vidaMaxima;
+    }
+
+    void OnDrawGizmos()
+    {
+        Vector2 origen = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        Gizmos.color = enSuelo ? Color.green : Color.red;
+        Gizmos.DrawLine(origen, origen + Vector2.down * 0.2f);
     }
 }
