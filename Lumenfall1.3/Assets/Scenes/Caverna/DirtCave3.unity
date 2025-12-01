@@ -7331,6 +7331,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4c5553b67040ec949a956e764aaaf7e8, type: 3}
+--- !u!114 &668350787 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9096216464027402298, guid: 4c5553b67040ec949a956e764aaaf7e8, type: 3}
+  m_PrefabInstance: {fileID: 668350786}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!114 &668350788 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6706188139579096698, guid: 4c5553b67040ec949a956e764aaaf7e8, type: 3}
+  m_PrefabInstance: {fileID: 668350786}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1062104404
 GameObject:
   m_ObjectHideFlags: 0
@@ -7498,7 +7520,7 @@ Transform:
   m_GameObject: {fileID: 1103032378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.4835515, y: -0.78, z: -7}
+  m_LocalPosition: {x: -5.1500087, y: -0.78, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8617,7 +8639,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2183978722150804891, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1822619944}
   m_SourcePrefab: {fileID: 100100000, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
 --- !u!114 &1822619941 stripped
 MonoBehaviour:
@@ -8630,6 +8655,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27905b6a000948f4b878664841240410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SwordHitbox
+--- !u!1 &1822619942 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2183978722150804891, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+  m_PrefabInstance: {fileID: 1822619940}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1822619943 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2924670154500926706, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+  m_PrefabInstance: {fileID: 1822619940}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822619942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c7553a3070edc41b2ee14e89b3a6d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Samurai
+--- !u!114 &1822619944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822619942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cda0d3cb3d83eb408d8cbb70793601e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBar
+  samurai: {fileID: 1822619943}
+  barraVida: {fileID: 668350787}
+  barraFondo: {fileID: 668350788}
+  colorVidaAlta: {r: 1, g: 0, b: 0, a: 1}
+  colorVidaMedia: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorVidaBaja: {r: 1, g: 0, b: 0, a: 1}
+  usarAnimacionSuave: 1
+  velocidadAnimacion: 5
 --- !u!1001 &1878690495
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -216,6 +216,28 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4c5553b67040ec949a956e764aaaf7e8, type: 3}
+--- !u!114 &42544934 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9096216464027402298, guid: 4c5553b67040ec949a956e764aaaf7e8, type: 3}
+  m_PrefabInstance: {fileID: 42544933}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!114 &42544935 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6706188139579096698, guid: 4c5553b67040ec949a956e764aaaf7e8, type: 3}
+  m_PrefabInstance: {fileID: 42544933}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1001 &215659098
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17530,8 +17552,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthBar
   samurai: {fileID: 1712323183}
-  barraVida: {fileID: 0}
-  barraFondo: {fileID: 0}
+  barraVida: {fileID: 42544934}
+  barraFondo: {fileID: 42544935}
   colorVidaAlta: {r: 1, g: 0, b: 0, a: 1}
   colorVidaMedia: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   colorVidaBaja: {r: 1, g: 0, b: 0, a: 1}
