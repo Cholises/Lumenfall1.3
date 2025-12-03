@@ -34,10 +34,10 @@ public class SwordHitbox : MonoBehaviour
             }
             
             // Detectar Mushroom
-            Mushroom mushroom = collision.GetComponent<Mushroom>();
-            if (mushroom != null)
+            Mushroom Mushroom = collision.GetComponent<Mushroom>();
+            if (Mushroom != null)
             {
-                mushroom.TakeDamage(danioActual, posicionJugador);
+                Mushroom.TakeDamage(danioActual, posicionJugador);
             }
         }
     }

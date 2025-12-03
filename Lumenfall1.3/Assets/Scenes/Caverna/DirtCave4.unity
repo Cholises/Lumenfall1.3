@@ -40239,6 +40239,10 @@ PrefabInstance:
       value: Samurai
       objectReference: {fileID: 0}
     - target: {fileID: 2924670154500926706, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
+      propertyPath: healthBar
+      value: 
+      objectReference: {fileID: 812737043}
+    - target: {fileID: 2924670154500926706, guid: a529ceff37567604ab5ef6e3c7e87a35, type: 3}
       propertyPath: fuerzaSalto
       value: 8
       objectReference: {fileID: 0}
@@ -40496,7 +40500,7 @@ Transform:
   m_GameObject: {fileID: 1103032378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.558659, y: -2.747245, z: -7}
+  m_LocalPosition: {x: -13.415252, y: -2.747245, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
