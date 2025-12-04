@@ -21188,6 +21188,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1479930665}
+    - target: {fileID: 3626658983876954770, guid: bcc2d6552ba366642a15474cd42f577d, type: 3}
+      propertyPath: maxHealth
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 4251045892561834269, guid: bcc2d6552ba366642a15474cd42f577d, type: 3}
       propertyPath: m_Size.x
       value: 0.28304663
