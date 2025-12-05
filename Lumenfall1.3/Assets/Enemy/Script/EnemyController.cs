@@ -337,5 +337,25 @@ public class EnemyController : MonoBehaviour
         Gizmos.DrawLine(patrolStart + Vector3.left * patrolDistance, patrolStart + Vector3.right * patrolDistance);
         Gizmos.DrawWireSphere(patrolStart + Vector3.left * patrolDistance, 0.2f);
         Gizmos.DrawWireSphere(patrolStart + Vector3.right * patrolDistance, 0.2f);
+ 
+   }
+ 
+
+private void OnCollisionStay2D(Collision2D collision)
+{
+    if (isDead) return;
+
+    if (collision.gameObject.CompareTag("Player"))
+    {
+        if (Time.time - lastAttackTime >= attackCooldown)
+        {
+            Samurai samurai = collision.gameObject.GetComponent<Samurai>();
+            if (samurai != null)
+            {
+                samurai.RecibeDanio(transform.position, 1);
+                lastAttackTime = Time.time;
+            }
+        }
     }
+}
 }

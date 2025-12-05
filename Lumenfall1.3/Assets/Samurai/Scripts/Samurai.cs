@@ -58,16 +58,16 @@ public class Samurai : MonoBehaviour
 
     void Start()
     {
-        if (GameManager.Instance != null)
+        if (GameManager.Instance == null)
         {
-            vidaMaxima = GameManager.Instance.vidaMaximaJugador;
-            vidaActual = GameManager.Instance.vidaActualJugador;
-            Debug.Log($"Samurai cargó vida: {vidaActual}/{vidaMaxima}");
+            Debug.LogWarning("⚠️ Samurai NO detecta GameManager, usando valores locales");
+            vidaActual = vidaMaxima;
         }
         else
         {
-            vidaActual = vidaMaxima;
-            Debug.Log($"Samurai inició con vida por defecto: {vidaActual}/{vidaMaxima}");
+            vidaMaxima = GameManager.Instance.vidaMaximaJugador;
+            vidaActual = GameManager.Instance.vidaActualJugador;
+            Debug.Log("✅ GameManager detectado por Samurai");
         }
 
         if (healthBar == null)
@@ -88,14 +88,13 @@ public class Samurai : MonoBehaviour
         Vector2 origenRaycast = new Vector2(transform.position.x, transform.position.y - 0.5f);
         RaycastHit2D hit = Physics2D.Raycast(origenRaycast, Vector2.down, 0.2f);
         enSuelo = hit.collider != null;
-        
+
         animator.SetBool("ensuelo", enSuelo);
 
         if (puedeMover && disableControlCounter <= 0)
         {
             float inputX = Input.GetAxisRaw("Horizontal");
             float movimiento = inputX * velocidad * Time.deltaTime;
-
             animator.SetFloat("Movement", Mathf.Abs(inputX));
 
             if (inputX < 0) transform.localScale = new Vector3(-2, 2, 1);
@@ -103,7 +102,6 @@ public class Samurai : MonoBehaviour
 
             transform.position += new Vector3(movimiento, 0, 0);
 
-            // Verificar velocidad vertical para evitar salto múltiple
             if (Input.GetKeyDown(KeyCode.Space) && enSuelo && Mathf.Abs(rb.linearVelocity.y) < 0.1f)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
@@ -114,7 +112,7 @@ public class Samurai : MonoBehaviour
             {
                 atacando = true;
                 animator.SetTrigger("Ataque");
-                ataqueActual = StartCoroutine(FinAtaque(0.5f, 1));
+                ataqueActual = StartCoroutine(FinAtaque(0.35f, 1));
             }
 
             if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2)
@@ -122,7 +120,7 @@ public class Samurai : MonoBehaviour
                 atacando2 = true;
                 animator.SetTrigger("Ataque2");
                 DashLigero();
-                ataqueActual = StartCoroutine(FinAtaque(0.9f, 2));
+                ataqueActual = StartCoroutine(FinAtaque(0.6f, 2));
             }
         }
         else
@@ -130,24 +128,20 @@ public class Samurai : MonoBehaviour
             animator.SetFloat("Movement", 0);
         }
     }
-    
+
     public void RecibeDanio(Vector2 direccion, int cantDanio)
     {
         if (!recibiendoDanio && !estaMuerto)
         {
             vidaActual -= cantDanio;
-            
+
             if (GameManager.Instance != null)
             {
                 GameManager.Instance.vidaActualJugador = vidaActual;
             }
-            
-            Debug.Log($"💔 Samurai recibió {cantDanio} de daño. Vida restante: {vidaActual}/{vidaMaxima}");
 
             if (healthBar != null)
-            {
                 healthBar.AnimarDanio();
-            }
 
             if (vidaActual <= 0)
             {
@@ -165,7 +159,6 @@ public class Samurai : MonoBehaviour
     public void DesactivaDanio()
     {
         recibiendoDanio = false;
-        puedeMover = true;
     }
 
     void DashLigero()
@@ -176,10 +169,11 @@ public class Samurai : MonoBehaviour
 
     IEnumerator FinAtaque(float t, int tipoAtaque)
     {
+        yield return new WaitForSeconds(0.05f);
+
         if (swordHitbox != null)
         {
-            int danio = (tipoAtaque == 2) ? 2 : 1;
-            swordHitbox.ActivarHitbox(danio);
+            swordHitbox.ActivarHitbox(tipoAtaque);
         }
 
         yield return new WaitForSeconds(t);
@@ -202,7 +196,7 @@ public class Samurai : MonoBehaviour
         animator.SetTrigger("Hurt");
 
         yield return new WaitForSeconds(0.2f);
-        
+
         recibiendoDanio = false;
         puedeMover = true;
     }
@@ -218,9 +212,7 @@ public class Samurai : MonoBehaviour
         {
             StopCoroutine(ataqueActual);
             if (swordHitbox != null)
-            {
                 swordHitbox.DesactivarHitbox();
-            }
         }
 
         animator.SetTrigger("Death");
@@ -242,28 +234,25 @@ public class Samurai : MonoBehaviour
         puedeMover = true;
         atacando = false;
         atacando2 = false;
-        
+
         vidaActual = vidaMaxima;
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.vidaActualJugador = vidaActual;
         }
-        
-        Debug.Log($"Samurai respawneó con {vidaActual} puntos de vida");
-        
+
         animator.Play("Idle");
     }
 
     public void Curar(int cantidad)
     {
         vidaActual = Mathf.Min(vidaActual + cantidad, vidaMaxima);
-        
+
         if (GameManager.Instance != null)
         {
             GameManager.Instance.vidaActualJugador = vidaActual;
         }
-        
-        Debug.Log($"Samurai curado. Vida actual: {vidaActual}/{vidaMaxima}");
     }
 
     public int ObtenerVidaActual()

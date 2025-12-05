@@ -195,4 +195,24 @@ public class Mushroom : MonoBehaviour
     {
         transform.localScale = new Vector3(dir > 0 ? 5 : -5, 5, 1); 
     }
+  
+
+private void OnCollisionStay2D(Collision2D collision)
+{
+    if (isDead) return;
+
+    if (collision.gameObject.CompareTag("Player"))
+    {
+        if (Time.time - lastAttackTime >= attackCooldown)
+        {
+            Samurai samurai = collision.gameObject.GetComponent<Samurai>();
+            if (samurai != null)
+            {
+                samurai.RecibeDanio(transform.position, 1);
+                lastAttackTime = Time.time;
+            }
+        }
+    }
+}
+
 }

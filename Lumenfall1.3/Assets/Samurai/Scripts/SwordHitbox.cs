@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class SwordHitbox : MonoBehaviour
 {
-    public int danioAtaque1 = 1;
-    public int danioAtaque2 = 2;
     private bool puedeGolpear = false;
     private int danioActual = 1;
 
-    public void ActivarHitbox(int tipoDanio = 1)
+    public void ActivarHitbox(int danio)
     {
         puedeGolpear = true;
-        danioActual = tipoDanio;
+        danioActual = danio;
     }
 
     public void DesactivarHitbox()
@@ -24,21 +22,17 @@ public class SwordHitbox : MonoBehaviour
 
         if (collision.CompareTag("Enemy"))
         {
+            puedeGolpear = false; // evita múltiples daños por ataque
+
             Vector2 posicionJugador = transform.root.position;
-            
-            // Detectar enemigo volador
+
             EnemyController enemy = collision.GetComponent<EnemyController>();
             if (enemy != null)
-            {
                 enemy.TakeDamage(danioActual, posicionJugador);
-            }
-            
-            // Detectar Mushroom
-            Mushroom Mushroom = collision.GetComponent<Mushroom>();
-            if (Mushroom != null)
-            {
-                Mushroom.TakeDamage(danioActual, posicionJugador);
-            }
+
+            Mushroom mushroom = collision.GetComponent<Mushroom>();
+            if (mushroom != null)
+                mushroom.TakeDamage(danioActual, posicionJugador);
         }
     }
 }
