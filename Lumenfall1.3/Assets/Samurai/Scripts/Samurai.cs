@@ -6,7 +6,10 @@ public class Samurai : MonoBehaviour
 {
     [Header("Movimiento")]
     public float velocidad = 5f;
-    public float fuerzaSalto = 15f;
+  public float fuerzaSalto = 9f;   // altura real del salto
+public float multiplicadorCaida = 2.5f; // qué tan rápido cae
+public float multiplicadorSaltoCorto = 2f; // para salto corto
+
 
     [Header("Ataque")]
     public float dashFuerza = 7f;
@@ -20,6 +23,7 @@ public class Samurai : MonoBehaviour
     [Header("Referencias")]
     public Animator animator;
     public Rigidbody2D rb;
+    private Collider2D cuerpoCollider;
 
     [Header("Control de Nivel")]
     public float originalGravityScale = 1f;
@@ -32,12 +36,32 @@ public class Samurai : MonoBehaviour
     private bool estaMuerto;
     private bool puedeMover = true;
 
+    [Header("Habilidades")]
+    public bool dobleSaltoHabilitado = false;
+    public bool puedeDobleSaltar = false;
+
+    [Header("Ground Detection")]
+    public LayerMask groundLayer;
+    [Header("Asistencia de Salto Pro")]
+public float coyoteTime = 0.15f;     // tiempo para saltar después de caer
+public float jumpBufferTime = 0.15f; // tiempo para guardar el salto antes de tocar suelo
+
+private float coyoteTimeCounter;
+private float jumpBufferCounter;
+
+
+    // 🔴 FILTRO REAL PARA SOLO SUELO POR ABAJO
+    private ContactFilter2D groundFilter;
+    private readonly Collider2D[] groundHits = new Collider2D[4];
+
     private Vector3 posicionInicial;
     private Coroutine ataqueActual;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        cuerpoCollider = GetComponent<Collider2D>();
+
         if (animator == null)
             animator = GetComponent<Animator>();
 
@@ -50,10 +74,15 @@ public class Samurai : MonoBehaviour
         {
             swordHitbox = GetComponentInChildren<SwordHitbox>();
             if (swordHitbox == null)
-            {
                 Debug.LogWarning("No se encontró SwordHitbox en los hijos del Samurai");
-            }
         }
+
+        // ✅ CONFIGURAR FILTRO PARA DETECTAR SOLO SUELO DESDE ABAJO
+        groundFilter.useLayerMask = true;
+        groundFilter.layerMask = groundLayer;
+        groundFilter.useNormalAngle = true;
+        groundFilter.minNormalAngle = 80f;
+        groundFilter.maxNormalAngle = 100f;
     }
 
     void Start()
@@ -67,46 +96,63 @@ public class Samurai : MonoBehaviour
         {
             vidaMaxima = GameManager.Instance.vidaMaximaJugador;
             vidaActual = GameManager.Instance.vidaActualJugador;
-            Debug.Log("✅ GameManager detectado por Samurai");
+            dobleSaltoHabilitado = GameManager.Instance.habilidadDobleSalto;
         }
 
         if (healthBar == null)
-        {
             healthBar = FindFirstObjectByType<HealthBar>();
-        }
 
         if (swordHitbox != null)
-        {
             swordHitbox.DesactivarHitbox();
-        }
     }
 
-    void Update()
+void Update()
+{
+    if (estaMuerto) return;
+
+    DetectarSueloReal();
+    animator.SetBool("ensuelo", enSuelo);
+
+    // ✅ COYOTE TIME
+    if (enSuelo)
+        coyoteTimeCounter = coyoteTime;
+    else
+        coyoteTimeCounter -= Time.deltaTime;
+
+    // ✅ JUMP BUFFER
+    if (Input.GetKeyDown(KeyCode.Space))
+        jumpBufferCounter = jumpBufferTime;
+    else
+        jumpBufferCounter -= Time.deltaTime;
+
+    if (puedeMover && disableControlCounter <= 0)
     {
-        if (estaMuerto) return;
+        float inputX = Input.GetAxisRaw("Horizontal");
+        float movimiento = inputX * velocidad;
+        animator.SetFloat("Movement", Mathf.Abs(inputX));
 
-        Vector2 origenRaycast = new Vector2(transform.position.x, transform.position.y - 0.5f);
-        RaycastHit2D hit = Physics2D.Raycast(origenRaycast, Vector2.down, 0.2f);
-        enSuelo = hit.collider != null;
+        if (inputX < 0) transform.localScale = new Vector3(-2, 2, 1);
+        else if (inputX > 0) transform.localScale = new Vector3(2, 2, 1);
 
-        animator.SetBool("ensuelo", enSuelo);
+        rb.linearVelocity = new Vector2(movimiento, rb.linearVelocity.y);
 
-        if (puedeMover && disableControlCounter <= 0)
+        // ✅ ÚNICO BLOQUE DE SALTO (BORRA EL TUYO VIEJO)
+        if (jumpBufferCounter > 0)
         {
-            float inputX = Input.GetAxisRaw("Horizontal");
-            float movimiento = inputX * velocidad * Time.deltaTime;
-            animator.SetFloat("Movement", Mathf.Abs(inputX));
-
-            if (inputX < 0) transform.localScale = new Vector3(-2, 2, 1);
-            else if (inputX > 0) transform.localScale = new Vector3(2, 2, 1);
-
-            transform.position += new Vector3(movimiento, 0, 0);
-
-            if (Input.GetKeyDown(KeyCode.Space) && enSuelo && Mathf.Abs(rb.linearVelocity.y) < 0.1f)
+            if (coyoteTimeCounter > 0)
             {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-                rb.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, fuerzaSalto);
+                jumpBufferCounter = 0;
+                puedeDobleSaltar = dobleSaltoHabilitado;
             }
+            else if (puedeDobleSaltar)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, fuerzaSalto);
+                puedeDobleSaltar = false;
+                jumpBufferCounter = 0;
+            }
+        }
+
 
             if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2)
             {
@@ -129,6 +175,57 @@ public class Samurai : MonoBehaviour
         }
     }
 
+    // ✅ DETECCIÓN REAL SOLO DESDE ABAJO (NO PAREDES / NO TECHO)
+void DetectarSueloReal()
+{
+    enSuelo = false;
+
+    ContactPoint2D[] contactos = new ContactPoint2D[8];
+    int cantidad = cuerpoCollider.GetContacts(contactos);
+
+    for (int i = 0; i < cantidad; i++)
+    {
+        ContactPoint2D c = contactos[i];
+
+        // ✅ 1. Debe ser del layer Ground
+        if (((1 << c.collider.gameObject.layer) & groundLayer) == 0)
+            continue;
+
+        // ✅ 2. La normal debe apuntar HACIA ARRIBA (suelo real)
+        // Esto descarta paredes y techos
+        if (c.normal.y > 0.6f)
+        {
+            enSuelo = true;
+            puedeDobleSaltar = dobleSaltoHabilitado;
+            return;
+        }
+    }
+}
+
+
+
+    void DashLigero()
+    {
+        float direccion = transform.localScale.x;
+        rb.linearVelocity = new Vector2(direccion * dashFuerza, rb.linearVelocity.y);
+    }
+
+    IEnumerator FinAtaque(float t, int tipoAtaque)
+    {
+        yield return new WaitForSeconds(0.05f);
+
+        if (swordHitbox != null)
+            swordHitbox.ActivarHitbox(tipoAtaque);
+
+        yield return new WaitForSeconds(t);
+
+        if (swordHitbox != null)
+            swordHitbox.DesactivarHitbox();
+
+        atacando = false;
+        atacando2 = false;
+    }
+
     public void RecibeDanio(Vector2 direccion, int cantDanio)
     {
         if (!recibiendoDanio && !estaMuerto)
@@ -136,9 +233,7 @@ public class Samurai : MonoBehaviour
             vidaActual -= cantDanio;
 
             if (GameManager.Instance != null)
-            {
                 GameManager.Instance.vidaActualJugador = vidaActual;
-            }
 
             if (healthBar != null)
                 healthBar.AnimarDanio();
@@ -159,32 +254,6 @@ public class Samurai : MonoBehaviour
     public void DesactivaDanio()
     {
         recibiendoDanio = false;
-    }
-
-    void DashLigero()
-    {
-        float direccion = transform.localScale.x;
-        rb.linearVelocity = new Vector2(direccion * dashFuerza, rb.linearVelocity.y);
-    }
-
-    IEnumerator FinAtaque(float t, int tipoAtaque)
-    {
-        yield return new WaitForSeconds(0.05f);
-
-        if (swordHitbox != null)
-        {
-            swordHitbox.ActivarHitbox(tipoAtaque);
-        }
-
-        yield return new WaitForSeconds(t);
-
-        if (swordHitbox != null)
-        {
-            swordHitbox.DesactivarHitbox();
-        }
-
-        atacando = false;
-        atacando2 = false;
     }
 
     IEnumerator HurtRutina()
@@ -238,9 +307,7 @@ public class Samurai : MonoBehaviour
         vidaActual = vidaMaxima;
 
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.vidaActualJugador = vidaActual;
-        }
 
         animator.Play("Idle");
     }
@@ -250,9 +317,7 @@ public class Samurai : MonoBehaviour
         vidaActual = Mathf.Min(vidaActual + cantidad, vidaMaxima);
 
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.vidaActualJugador = vidaActual;
-        }
     }
 
     public int ObtenerVidaActual()
@@ -267,8 +332,23 @@ public class Samurai : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Vector2 origen = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        if (cuerpoCollider == null) return;
+
         Gizmos.color = enSuelo ? Color.green : Color.red;
-        Gizmos.DrawLine(origen, origen + Vector2.down * 0.2f);
+        Gizmos.DrawWireCube(cuerpoCollider.bounds.center, cuerpoCollider.bounds.size);
     }
+    void FixedUpdate()
+{
+    // Caída más rápida
+    if (rb.linearVelocity.y < 0)
+    {
+        rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorCaida - 1) * Time.fixedDeltaTime;
+    }
+    // Salto corto si sueltas rápido el botón
+    else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
+    {
+        rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorSaltoCorto - 1) * Time.fixedDeltaTime;
+    }
+}
+
 }

@@ -233,9 +233,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3855364587556031631, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
+      propertyPath: fuerzaSalto
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855364587556031631, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 128
+      objectReference: {fileID: 0}
     - target: {fileID: 4598893569706930320, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
       propertyPath: m_Name
       value: Samurai
+      objectReference: {fileID: 0}
+    - target: {fileID: 4598893569706930320, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6530223203444021711, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
       propertyPath: barraVida
@@ -2503,7 +2515,7 @@ GameObject:
   - component: {fileID: 523490727}
   - component: {fileID: 523490726}
   - component: {fileID: 523490729}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7400,6 +7412,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1001 &754530901
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -22.144386
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.6758916
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450236494968950848, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4945974001639919840, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: m_Name
+      value: Habilidades
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f784561fff6f7e74a84088954482a801, type: 3}
 --- !u!1 &1062104404
 GameObject:
   m_ObjectHideFlags: 0
@@ -8502,11 +8571,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -21.870155
+      value: -3.6
       objectReference: {fileID: 0}
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.8968425
+      value: -3.04
       objectReference: {fileID: 0}
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8867,3 +8936,4 @@ SceneRoots:
   - {fileID: 1593874510}
   - {fileID: 1431604884}
   - {fileID: 171727963}
+  - {fileID: 754530901}

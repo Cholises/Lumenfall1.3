@@ -25,4 +25,8 @@ public class GameManager : MonoBehaviour
     {
         vidaActualJugador = vidaMaximaJugador;
     }
+    [Header("Habilidades Permanentes")]
+public bool habilidadDobleSalto = false;
+
+
 }
