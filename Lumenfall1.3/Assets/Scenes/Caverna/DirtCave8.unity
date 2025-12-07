@@ -581,11 +581,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3855364587556031631, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
       propertyPath: fuerzaSalto
-      value: 9
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855364587556031631, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
+      propertyPath: puedeDobleSaltar
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3855364587556031631, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
       propertyPath: groundLayer.m_Bits
       value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 3855364587556031631, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
+      propertyPath: dobleSaltoHabilitado
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4598893569706930320, guid: 9189a6a5a5298b848aa6a68e8ae8b5b3, type: 3}
       propertyPath: m_Name
@@ -25192,7 +25200,7 @@ Transform:
   m_GameObject: {fileID: 1103032378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.47681, y: -2.8651247, z: -7}
+  m_LocalPosition: {x: -14.413956, y: -2.8651247, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

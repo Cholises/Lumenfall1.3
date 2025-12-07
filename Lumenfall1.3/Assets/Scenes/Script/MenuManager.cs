@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 public class MenuManager : MonoBehaviour
@@ -20,9 +21,9 @@ public class MenuManager : MonoBehaviour
     public float tiempoEntreMovimientos = 0.2f;
 
     [Header("Sonidos")]
-    public AudioClip sonidoNavegar; // Sonido al cambiar de opción
-    public AudioClip sonidoSeleccionar; // Sonido al confirmar
-    public AudioSource audioSource; // Componente AudioSource
+    public AudioClip sonidoNavegar;
+    public AudioClip sonidoSeleccionar;
+    public AudioSource audioSource;
     [Range(0f, 1f)]
     public float volumenNavegar = 0.5f;
     [Range(0f, 1f)]
@@ -31,28 +32,23 @@ public class MenuManager : MonoBehaviour
     private int indiceSeleccionado = 0;
     private Button[] botones;
     private float ultimoMovimiento = 0f;
-
     private Coroutine moverFlechaCoroutine;
 
     void Start()
     {
+        // Verificar que los botones estén asignados
+        if (botonIniciar == null || botonControles == null || botonSalir == null)
+        {
+            Debug.LogError("¡Faltan botones por asignar en el Inspector!");
+            return;
+        }
+
         botones = new Button[] { botonIniciar, botonControles, botonSalir };
 
-        // Configurar listeners sin recursión
-        botonIniciar.onClick.AddListener(() => {
-            ReproducirSonido(sonidoSeleccionar, volumenSeleccionar);
-            StartCoroutine(CambiarEscenaConRetraso(0.5f));
-        });
-        
-        botonControles.onClick.AddListener(() => {
-            ReproducirSonido(sonidoSeleccionar, volumenSeleccionar);
-            MostrarControles();
-        });
-        
-        botonSalir.onClick.AddListener(() => {
-            ReproducirSonido(sonidoSeleccionar, volumenSeleccionar);
-            SalirJuego();
-        });
+        // Configurar los botones para que funcionen con mouse
+        ConfigurarBotonConMouse(botonIniciar, 0, IniciarJuego);
+        ConfigurarBotonConMouse(botonControles, 1, MostrarControles);
+        ConfigurarBotonConMouse(botonSalir, 2, SalirJuego);
 
         if (panelControles != null)
         {
@@ -65,10 +61,50 @@ public class MenuManager : MonoBehaviour
         }
 
         ActualizarPosicionFlecha();
+        Debug.Log("MenuManager: Inicializado correctamente");
+    }
+
+    void ConfigurarBotonConMouse(Button boton, int indice, UnityEngine.Events.UnityAction accion)
+    {
+        // Limpiar listeners previos
+        boton.onClick.RemoveAllListeners();
+        
+        // Agregar la acción al botón
+        boton.onClick.AddListener(() => {
+            Debug.Log($"Click en botón {indice}");
+            ReproducirSonido(sonidoSeleccionar, volumenSeleccionar);
+            accion();
+        });
+
+        // Agregar detección de hover usando EventTrigger
+        EventTrigger trigger = boton.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = boton.gameObject.AddComponent<EventTrigger>();
+        }
+        else
+        {
+            trigger.triggers.Clear();
+        }
+
+        // Evento para cuando el mouse pasa sobre el botón
+        EventTrigger.Entry pointerEnter = new EventTrigger.Entry();
+        pointerEnter.eventID = EventTriggerType.PointerEnter;
+        pointerEnter.callback.AddListener((eventData) => {
+            if (indiceSeleccionado != indice)
+            {
+                Debug.Log($"Hover en botón {indice}");
+                indiceSeleccionado = indice;
+                ReproducirSonido(sonidoNavegar, volumenNavegar);
+                ActualizarPosicionFlecha();
+            }
+        });
+        trigger.triggers.Add(pointerEnter);
     }
 
     void Update()
     {
+        // Navegación con teclado
         if (Time.time - ultimoMovimiento > tiempoEntreMovimientos)
         {
             if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
@@ -86,6 +122,12 @@ public class MenuManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
         {
             EjecutarBotonSeleccionado();
+        }
+
+        // DEBUG: Detectar clicks del mouse
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Click detectado en pantalla");
         }
     }
 
@@ -112,11 +154,8 @@ public class MenuManager : MonoBehaviour
 
         RectTransform botonRect = botones[indiceSeleccionado].GetComponent<RectTransform>();
 
-        // Calcular borde izquierdo del botón (respecto al Canvas)
         float bordeIzquierdoX = botonRect.anchoredPosition.x - (botonRect.rect.width * botonRect.pivot.x);
-
-        // Posicionar la flecha a la izquierda del borde, con un offset para no tapar texto
-        float posicionFlechaX = bordeIzquierdoX - 50f; // Ajusta este valor si quieres
+        float posicionFlechaX = bordeIzquierdoX - 50f;
 
         Vector2 nuevaPosicion = new Vector2(posicionFlechaX, botonRect.anchoredPosition.y);
 
@@ -145,9 +184,14 @@ public class MenuManager : MonoBehaviour
 
     void EjecutarBotonSeleccionado()
     {
-        // Invocar el onClick del botón seleccionado
-        Button boton = botones[indiceSeleccionado];
-        boton.onClick.Invoke();
+        Debug.Log($"Ejecutando botón {indiceSeleccionado}");
+        botones[indiceSeleccionado].onClick.Invoke();
+    }
+
+    void IniciarJuego()
+    {
+        Debug.Log("Iniciando juego...");
+        StartCoroutine(CambiarEscenaConRetraso(0.5f));
     }
 
     IEnumerator CambiarEscenaConRetraso(float retraso)
