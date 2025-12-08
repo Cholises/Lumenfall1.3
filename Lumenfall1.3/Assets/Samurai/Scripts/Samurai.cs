@@ -6,10 +6,9 @@ public class Samurai : MonoBehaviour
 {
     [Header("Movimiento")]
     public float velocidad = 5f;
-  public float fuerzaSalto = 9f;   // altura real del salto
-public float multiplicadorCaida = 2.5f; // qué tan rápido cae
-public float multiplicadorSaltoCorto = 2f; // para salto corto
-
+    public float fuerzaSalto = 9f;   // altura real del salto
+    public float multiplicadorCaida = 2.5f; // qué tan rápido cae
+    public float multiplicadorSaltoCorto = 2f; // para salto corto
 
     [Header("Ataque")]
     public float dashFuerza = 7f;
@@ -24,6 +23,9 @@ public float multiplicadorSaltoCorto = 2f; // para salto corto
     public Animator animator;
     public Rigidbody2D rb;
     private Collider2D cuerpoCollider;
+
+    [Header("Game Over")]
+    public GameOver gameOver; // ← AGREGADO: arrastra aquí tu objeto GameOver en el Inspector
 
     [Header("Control de Nivel")]
     public float originalGravityScale = 1f;
@@ -43,12 +45,11 @@ public float multiplicadorSaltoCorto = 2f; // para salto corto
     [Header("Ground Detection")]
     public LayerMask groundLayer;
     [Header("Asistencia de Salto Pro")]
-public float coyoteTime = 0.15f;     // tiempo para saltar después de caer
-public float jumpBufferTime = 0.15f; // tiempo para guardar el salto antes de tocar suelo
+    public float coyoteTime = 0.15f;     // tiempo para saltar después de caer
+    public float jumpBufferTime = 0.15f; // tiempo para guardar el salto antes de tocar suelo
 
-private float coyoteTimeCounter;
-private float jumpBufferCounter;
-
+    private float coyoteTimeCounter;
+    private float jumpBufferCounter;
 
     // 🔴 FILTRO REAL PARA SOLO SUELO POR ABAJO
     private ContactFilter2D groundFilter;
@@ -75,6 +76,14 @@ private float jumpBufferCounter;
             swordHitbox = GetComponentInChildren<SwordHitbox>();
             if (swordHitbox == null)
                 Debug.LogWarning("No se encontró SwordHitbox en los hijos del Samurai");
+        }
+
+        // Intentar asignar la referencia al GameOver automáticamente si no la asignaron en el inspector.
+        if (gameOver == null)
+        {
+    
+            if (gameOver == null)
+                Debug.LogWarning("GameOver no encontrado en la escena. Arrastra el GameOver al campo 'gameOver' del Samurai.");
         }
 
         // ✅ CONFIGURAR FILTRO PARA DETECTAR SOLO SUELO DESDE ABAJO
@@ -106,53 +115,52 @@ private float jumpBufferCounter;
             swordHitbox.DesactivarHitbox();
     }
 
-void Update()
-{
-    if (estaMuerto) return;
-
-    DetectarSueloReal();
-    animator.SetBool("ensuelo", enSuelo);
-
-    // ✅ COYOTE TIME
-    if (enSuelo)
-        coyoteTimeCounter = coyoteTime;
-    else
-        coyoteTimeCounter -= Time.deltaTime;
-
-    // ✅ JUMP BUFFER
-    if (Input.GetKeyDown(KeyCode.Space))
-        jumpBufferCounter = jumpBufferTime;
-    else
-        jumpBufferCounter -= Time.deltaTime;
-
-    if (puedeMover && disableControlCounter <= 0)
+    void Update()
     {
-        float inputX = Input.GetAxisRaw("Horizontal");
-        float movimiento = inputX * velocidad;
-        animator.SetFloat("Movement", Mathf.Abs(inputX));
+        if (estaMuerto) return;
 
-        if (inputX < 0) transform.localScale = new Vector3(-2, 2, 1);
-        else if (inputX > 0) transform.localScale = new Vector3(2, 2, 1);
+        DetectarSueloReal();
+        animator.SetBool("ensuelo", enSuelo);
 
-        rb.linearVelocity = new Vector2(movimiento, rb.linearVelocity.y);
+        // ✅ COYOTE TIME
+        if (enSuelo)
+            coyoteTimeCounter = coyoteTime;
+        else
+            coyoteTimeCounter -= Time.deltaTime;
 
-        // ✅ ÚNICO BLOQUE DE SALTO (BORRA EL TUYO VIEJO)
-        if (jumpBufferCounter > 0)
+        // ✅ JUMP BUFFER
+        if (Input.GetKeyDown(KeyCode.Space))
+            jumpBufferCounter = jumpBufferTime;
+        else
+            jumpBufferCounter -= Time.deltaTime;
+
+        if (puedeMover && disableControlCounter <= 0)
         {
-            if (coyoteTimeCounter > 0)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, fuerzaSalto);
-                jumpBufferCounter = 0;
-                puedeDobleSaltar = dobleSaltoHabilitado;
-            }
-            else if (puedeDobleSaltar)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, fuerzaSalto);
-                puedeDobleSaltar = false;
-                jumpBufferCounter = 0;
-            }
-        }
+            float inputX = Input.GetAxisRaw("Horizontal");
+            float movimiento = inputX * velocidad;
+            animator.SetFloat("Movement", Mathf.Abs(inputX));
 
+            if (inputX < 0) transform.localScale = new Vector3(-2, 2, 1);
+            else if (inputX > 0) transform.localScale = new Vector3(2, 2, 1);
+
+            rb.linearVelocity = new Vector2(movimiento, rb.linearVelocity.y);
+
+            // ✅ ÚNICO BLOQUE DE SALTO (BORRA EL TUYO VIEJO)
+            if (jumpBufferCounter > 0)
+            {
+                if (coyoteTimeCounter > 0)
+                {
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, fuerzaSalto);
+                    jumpBufferCounter = 0;
+                    puedeDobleSaltar = dobleSaltoHabilitado;
+                }
+                else if (puedeDobleSaltar)
+                {
+                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, fuerzaSalto);
+                    puedeDobleSaltar = false;
+                    jumpBufferCounter = 0;
+                }
+            }
 
             if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2)
             {
@@ -176,33 +184,31 @@ void Update()
     }
 
     // ✅ DETECCIÓN REAL SOLO DESDE ABAJO (NO PAREDES / NO TECHO)
-void DetectarSueloReal()
-{
-    enSuelo = false;
-
-    ContactPoint2D[] contactos = new ContactPoint2D[8];
-    int cantidad = cuerpoCollider.GetContacts(contactos);
-
-    for (int i = 0; i < cantidad; i++)
+    void DetectarSueloReal()
     {
-        ContactPoint2D c = contactos[i];
+        enSuelo = false;
 
-        // ✅ 1. Debe ser del layer Ground
-        if (((1 << c.collider.gameObject.layer) & groundLayer) == 0)
-            continue;
+        ContactPoint2D[] contactos = new ContactPoint2D[8];
+        int cantidad = cuerpoCollider.GetContacts(contactos);
 
-        // ✅ 2. La normal debe apuntar HACIA ARRIBA (suelo real)
-        // Esto descarta paredes y techos
-        if (c.normal.y > 0.6f)
+        for (int i = 0; i < cantidad; i++)
         {
-            enSuelo = true;
-            puedeDobleSaltar = dobleSaltoHabilitado;
-            return;
+            ContactPoint2D c = contactos[i];
+
+            // ✅ 1. Debe ser del layer Ground
+            if (((1 << c.collider.gameObject.layer) & groundLayer) == 0)
+                continue;
+
+            // ✅ 2. La normal debe apuntar HACIA ARRIBA (suelo real)
+            // Esto descarta paredes y techos
+            if (c.normal.y > 0.6f)
+            {
+                enSuelo = true;
+                puedeDobleSaltar = dobleSaltoHabilitado;
+                return;
+            }
         }
     }
-}
-
-
 
     void DashLigero()
     {
@@ -288,6 +294,12 @@ void DetectarSueloReal()
         rb.linearVelocity = Vector2.zero;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
+        // Mostramos el Game Over (si está asignado)
+        if (gameOver != null)
+            gameOver.MostrarGameOver();
+        else
+            Debug.LogWarning("gameOver es null en Samurai.Morir() — asigna el GameOver en el Inspector o asegúrate de que exista un GameOver en la escena.");
+
         StartCoroutine(RespawnDespues(2f));
     }
 
@@ -337,18 +349,18 @@ void DetectarSueloReal()
         Gizmos.color = enSuelo ? Color.green : Color.red;
         Gizmos.DrawWireCube(cuerpoCollider.bounds.center, cuerpoCollider.bounds.size);
     }
-    void FixedUpdate()
-{
-    // Caída más rápida
-    if (rb.linearVelocity.y < 0)
-    {
-        rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorCaida - 1) * Time.fixedDeltaTime;
-    }
-    // Salto corto si sueltas rápido el botón
-    else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
-    {
-        rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorSaltoCorto - 1) * Time.fixedDeltaTime;
-    }
-}
 
+    void FixedUpdate()
+    {
+        // Caída más rápida
+        if (rb.linearVelocity.y < 0)
+        {
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorCaida - 1) * Time.fixedDeltaTime;
+        }
+        // Salto corto si sueltas rápido el botón
+        else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
+        {
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorSaltoCorto - 1) * Time.fixedDeltaTime;
+        }
+    }
 }

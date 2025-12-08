@@ -22,17 +22,24 @@ public class SwordHitbox : MonoBehaviour
 
         if (collision.CompareTag("Enemy"))
         {
-            puedeGolpear = false; // evita múltiples daños por ataque
+            puedeGolpear = false; // evita múltiples golpes por ataque
 
             Vector2 posicionJugador = transform.root.position;
 
+            // ✔ Enemigo normal
             EnemyController enemy = collision.GetComponent<EnemyController>();
             if (enemy != null)
                 enemy.TakeDamage(danioActual, posicionJugador);
 
+            // ✔ Hongo
             Mushroom mushroom = collision.GetComponent<Mushroom>();
             if (mushroom != null)
                 mushroom.TakeDamage(danioActual, posicionJugador);
+
+            // ✔ NUEVO: Jefe NightBorne
+            NightBorne night = collision.GetComponent<NightBorne>();
+            if (night != null)
+                night.TakeDamage(danioActual, posicionJugador);
         }
     }
 }
