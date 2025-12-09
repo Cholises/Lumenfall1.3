@@ -20,26 +20,34 @@ public class SwordHitbox : MonoBehaviour
     {
         if (!puedeGolpear) return;
 
-        if (collision.CompareTag("Enemy"))
+        // Acepta enemigos o cualquier objeto que tenga un Hongo
+        if (collision.CompareTag("Enemy") || collision.GetComponent<Hongo>() != null)
         {
-            puedeGolpear = false; // evita múltiples golpes por ataque
+            puedeGolpear = false;
 
             Vector2 posicionJugador = transform.root.position;
 
-            // ✔ Enemigo normal
+            // Enemigo controlador genérico
             EnemyController enemy = collision.GetComponent<EnemyController>();
             if (enemy != null)
                 enemy.TakeDamage(danioActual, posicionJugador);
 
-            // ✔ Hongo
+            // Mushroom clásico
             Mushroom mushroom = collision.GetComponent<Mushroom>();
             if (mushroom != null)
                 mushroom.TakeDamage(danioActual, posicionJugador);
 
-            // ✔ NUEVO: Jefe NightBorne
+            // NightBorne jefe
             NightBorne night = collision.GetComponent<NightBorne>();
             if (night != null)
                 night.TakeDamage(danioActual, posicionJugador);
+
+            // 🔥 HONGO NUEVO (tu enemigo)
+            Hongo h = collision.GetComponent<Hongo>();
+            if (h != null)
+            {
+                h.TakeDamage(danioActual, posicionJugador);
+            }
         }
     }
 }
