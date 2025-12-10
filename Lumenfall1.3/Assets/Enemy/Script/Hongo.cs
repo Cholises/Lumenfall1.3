@@ -10,7 +10,7 @@ public class Hongo : MonoBehaviour
     private Collider2D col;
 
     [Header("Damage Zone")]
-    public HongoDamageZone damageZone;   // ← AGREGADO
+    public HongoDamageZone damageZone;
 
     [Header("Stats")]
     public int maxHealth = 4;
@@ -22,6 +22,7 @@ public class Hongo : MonoBehaviour
     public float patrolDistance = 2.5f;
     private float patrolDir = 1;
     private Vector3 startPos;
+    private bool facingRight = true;
 
     [Header("Detección")]
     public float detectionRange = 3f;
@@ -30,10 +31,10 @@ public class Hongo : MonoBehaviour
     [Header("Ataques")]
     public float attackCooldown = 1f;
     private float lastAttackTime;
-    private bool nextStunAttack = false;
 
     private bool isDead = false;
     private bool isHit = false;
+    private bool isAttacking = false;
 
     void Start()
     {
@@ -53,14 +54,13 @@ public class Hongo : MonoBehaviour
             if (p) player = p.transform;
         }
 
-        // La zona de daño inicia apagada
         if (damageZone != null)
             damageZone.DisableDamage();
     }
 
     void Update()
     {
-        if (isDead || isHit || player == null) return;
+        if (isDead || isHit || isAttacking || player == null) return;
 
         float dist = Vector2.Distance(transform.position, player.position);
 
@@ -84,6 +84,12 @@ public class Hongo : MonoBehaviour
         }
     }
 
+    void LateUpdate()
+    {
+        // Evitar que se encoja por las animaciones
+        transform.localScale = new Vector3(facingRight ? -3 : 3, 3, 3);
+    }
+
     void Patrol()
     {
         anim.SetBool("isWalking", true);
@@ -93,15 +99,15 @@ public class Hongo : MonoBehaviour
         if (distX >= patrolDistance)
         {
             patrolDir = -1;
-            Flip(-1);
+            Flip(false);
         }
         else if (distX <= -patrolDistance)
         {
             patrolDir = 1;
-            Flip(1);
+            Flip(true);
         }
 
-        rb.linearVelocity = new Vector2(patrolDir * patrolSpeed, 0);
+        rb.linearVelocity = new Vector2(patrolDir * patrolSpeed, rb.linearVelocity.y);
     }
 
     void ChasePlayer()
@@ -109,62 +115,55 @@ public class Hongo : MonoBehaviour
         anim.SetBool("isWalking", true);
 
         float dir = Mathf.Sign(player.position.x - transform.position.x);
-        Flip(dir);
+        Flip(dir > 0);
 
-        rb.linearVelocity = new Vector2(dir * runSpeed, 0);
+        rb.linearVelocity = new Vector2(dir * runSpeed, rb.linearVelocity.y);
     }
 
     // ---------------------- ATAQUE ----------------------
     void DoAttack()
     {
-        anim.SetTrigger("Attack");
-
+        isAttacking = true;
+        rb.linearVelocity = Vector2.zero;
         lastAttackTime = Time.time;
 
-        lastAttackTime = Time.time;
+        anim.SetBool("Attack", true);
 
-        // Alterna ataque normal y stun
-        if (!nextStunAttack)
-        {
-            anim.SetTrigger("Attack");
-            nextStunAttack = true;
-        }
-        else
-        {
-            anim.SetTrigger("AttackStun");
-            nextStunAttack = false;
-        }
-
-        // Aplicar daño al samurai
-        Samurai samurai = player.GetComponent<Samurai>();
-        if (samurai)
-            samurai.RecibeDanio(transform.position, 1);
+        StartCoroutine(AttackFinish());
     }
 
-    public void RealizarDaño(Collider2D target)
-{
-    Samurai sam = target.GetComponent<Samurai>();
-
-    if (sam != null)
+    IEnumerator AttackFinish()
     {
-        // EL MÉTODO REAL DE TU PERSONAJE ES ESTE:
-        sam.RecibeDanio(transform.position, 1);
+        yield return new WaitForSeconds(0.6f);
+
+        anim.SetBool("Attack", false);
+        isAttacking = false;
+        DisableDamage();
     }
-}
-    // ----------- DAMAGEZONE EVENTS -----------
-    public void EnableDamage()   // ← Se llama desde el Animator
+
+    public void EnableDamage()
     {
         if (!isDead && damageZone != null)
             damageZone.EnableDamage();
     }
 
-    public void DisableDamage()  // ← Se llama desde el Animator
+    public void DisableDamage()
     {
         if (damageZone != null)
             damageZone.DisableDamage();
     }
-    // ----------------------------------------
 
+    public void RealizarDaño(Collider2D target)
+    {
+        Samurai sam = target.GetComponent<Samurai>();
+
+        if (sam != null)
+        {
+            sam.RecibeDanio(transform.position, 1);
+        }
+    }
+
+    // ---------------------- RECIBIR DAÑO ----------------------
     public void TakeDamage(int dmg, Vector2 desde)
     {
         if (isDead) return;
@@ -173,9 +172,11 @@ public class Hongo : MonoBehaviour
 
         anim.SetTrigger("Hit");
         isHit = true;
+        isAttacking = false;
+        DisableDamage();
 
         float dir = Mathf.Sign(transform.position.x - desde.x);
-        rb.linearVelocity = new Vector2(dir * 3.5f, 0);
+        rb.linearVelocity = new Vector2(dir * 3.5f, rb.linearVelocity.y);
 
         if (currentHealth <= 0)
         {
@@ -196,15 +197,16 @@ public class Hongo : MonoBehaviour
     void Die()
     {
         isDead = true;
+        anim.SetTrigger("Die");
         rb.linearVelocity = Vector2.zero;
-        anim.SetTrigger("Death");
         col.enabled = false;
+        DisableDamage();
+
         Destroy(gameObject, 2f);
     }
 
-    // 👉 Flip CORREGIDO (tu sprite original mira a la izquierda)
-    void Flip(float dir)
+    void Flip(bool faceRight)
     {
-        transform.localScale = new Vector3(dir > 0 ? -5 : 5, 5, 1);
+        facingRight = faceRight;
     }
 }
