@@ -122,30 +122,29 @@ public class NightBorne : MonoBehaviour
 
     public void TakeDamage(int dmg, Vector2 desde)
     {
-        // ⚠️ CRÍTICO: Detener si ya está muerto
         if (isDead) return;
 
         combatMode = true;
+
         currentHealth -= dmg;
 
         Debug.Log("[NightBorne] Daño recibido: " + dmg +
                   " | Vida restante: " + currentHealth + "/" + maxHealth);
 
-        // ⚠️ Verificar muerte ANTES de hacer knockback
         if (currentHealth <= 0)
         {
             Die();
-            return; // ⚠️ IMPORTANTE: Salir aquí para no ejecutar más código
         }
+        else
+        {
+            anim.SetTrigger("Hit");
+            isHit = true;
 
-        // Solo ejecutar si NO está muerto
-        anim.SetTrigger("Hit");
-        isHit = true;
+            float dir = Mathf.Sign(transform.position.x - desde.x);
+            rb.linearVelocity = new Vector2(dir * 3f, 0);
 
-        float dir = Mathf.Sign(transform.position.x - desde.x);
-        rb.linearVelocity = new Vector2(dir * 3f, 0);
-
-        StartCoroutine(RecoverHit());
+            StartCoroutine(RecoverHit());
+        }
     }
 
     IEnumerator RecoverHit()
@@ -157,18 +156,19 @@ public class NightBorne : MonoBehaviour
     void Die()
     {
         isDead = true;
+
         rb.linearVelocity = Vector2.zero;
-        
-        // ⚠️ Resetear triggers y bools antes de Death
-        anim.ResetTrigger("Hit");
-        anim.ResetTrigger("Attack");
         anim.SetBool("isRunning", false);
-        
-        // Ahora activar Death
         anim.SetTrigger("Death");
 
         col.enabled = false;
 
         Destroy(gameObject, 3f);
+    }
+
+    // ⭐⭐⭐ FUNCIÓN PARA LA BARRA DE VIDA ⭐⭐⭐
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
     }
 }
