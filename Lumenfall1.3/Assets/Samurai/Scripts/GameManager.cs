@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class GameManager : MonoBehaviour
 
     [Header("Habilidades Permanentes")]
     public bool habilidadDobleSalto = false;
+
+    // 👉 NUEVO: Sistema de llaves/habilidades adicionales
+    private HashSet<string> llaves = new HashSet<string>();
 
     void Awake()
     {
@@ -29,7 +33,9 @@ public class GameManager : MonoBehaviour
         vidaActualJugador = vidaMaximaJugador;
     }
 
-    // Métodos para controlar el Double Jump
+    // -------------------------
+    // 👉 SISTEMA DOUBLE JUMP
+    // -------------------------
     public void ObtenerDoubleJump()
     {
         habilidadDobleSalto = true;
@@ -39,5 +45,19 @@ public class GameManager : MonoBehaviour
     public bool TieneDoubleJump()
     {
         return habilidadDobleSalto;
+    }
+
+    // -------------------------
+    // 👉 SISTEMA DE LLAVES EXTRA
+    // -------------------------
+    public void AgregarLlave(string nombreLlave)
+    {
+        llaves.Add(nombreLlave);
+        Debug.Log("Llave obtenida: " + nombreLlave);
+    }
+
+    public bool TieneLlave(string nombreLlave)
+    {
+        return llaves.Contains(nombreLlave);
     }
 }
