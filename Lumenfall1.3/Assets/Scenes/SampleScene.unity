@@ -457507,6 +457507,14 @@ PrefabInstance:
       propertyPath: gameOver
       value: 
       objectReference: {fileID: 947526709}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: puedeDobleSaltar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: dobleSaltoHabilitado
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

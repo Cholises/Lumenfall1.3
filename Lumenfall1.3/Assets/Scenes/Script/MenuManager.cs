@@ -8,14 +8,10 @@ public class MenuManager : MonoBehaviour
 {
     [Header("Botones del Menú")]
     public Button botonIniciar;
-    public Button botonControles;
     public Button botonSalir;
 
     [Header("Selector Visual")]
     public RectTransform flechaSelector;
-
-    [Header("Paneles")]
-    public GameObject panelControles;
 
     [Header("Navegación")]
     public float tiempoEntreMovimientos = 0.2f;
@@ -37,23 +33,18 @@ public class MenuManager : MonoBehaviour
     void Start()
     {
         // Verificar que los botones estén asignados
-        if (botonIniciar == null || botonControles == null || botonSalir == null)
+        if (botonIniciar == null || botonSalir == null)
         {
             Debug.LogError("¡Faltan botones por asignar en el Inspector!");
             return;
         }
 
-        botones = new Button[] { botonIniciar, botonControles, botonSalir };
+        // Ahora solo hay 2 botones
+        botones = new Button[] { botonIniciar, botonSalir };
 
-        // Configurar los botones para que funcionen con mouse
+        // Configurar eventos del mouse
         ConfigurarBotonConMouse(botonIniciar, 0, IniciarJuego);
-        ConfigurarBotonConMouse(botonControles, 1, MostrarControles);
-        ConfigurarBotonConMouse(botonSalir, 2, SalirJuego);
-
-        if (panelControles != null)
-        {
-            panelControles.SetActive(false);
-        }
+        ConfigurarBotonConMouse(botonSalir, 1, SalirJuego);
 
         if (audioSource == null)
         {
@@ -66,34 +57,25 @@ public class MenuManager : MonoBehaviour
 
     void ConfigurarBotonConMouse(Button boton, int indice, UnityEngine.Events.UnityAction accion)
     {
-        // Limpiar listeners previos
         boton.onClick.RemoveAllListeners();
-        
-        // Agregar la acción al botón
-        boton.onClick.AddListener(() => {
-            Debug.Log($"Click en botón {indice}");
+        boton.onClick.AddListener(() =>
+        {
             ReproducirSonido(sonidoSeleccionar, volumenSeleccionar);
             accion();
         });
 
-        // Agregar detección de hover usando EventTrigger
         EventTrigger trigger = boton.GetComponent<EventTrigger>();
         if (trigger == null)
-        {
             trigger = boton.gameObject.AddComponent<EventTrigger>();
-        }
         else
-        {
             trigger.triggers.Clear();
-        }
 
-        // Evento para cuando el mouse pasa sobre el botón
         EventTrigger.Entry pointerEnter = new EventTrigger.Entry();
         pointerEnter.eventID = EventTriggerType.PointerEnter;
-        pointerEnter.callback.AddListener((eventData) => {
+        pointerEnter.callback.AddListener((eventData) =>
+        {
             if (indiceSeleccionado != indice)
             {
-                Debug.Log($"Hover en botón {indice}");
                 indiceSeleccionado = indice;
                 ReproducirSonido(sonidoNavegar, volumenNavegar);
                 ActualizarPosicionFlecha();
@@ -120,15 +102,7 @@ public class MenuManager : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
-        {
             EjecutarBotonSeleccionado();
-        }
-
-        // DEBUG: Detectar clicks del mouse
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("Click detectado en pantalla");
-        }
     }
 
     void MoverSeleccion(int direccion)
@@ -136,13 +110,9 @@ public class MenuManager : MonoBehaviour
         indiceSeleccionado += direccion;
 
         if (indiceSeleccionado < 0)
-        {
             indiceSeleccionado = botones.Length - 1;
-        }
         else if (indiceSeleccionado >= botones.Length)
-        {
             indiceSeleccionado = 0;
-        }
 
         ReproducirSonido(sonidoNavegar, volumenNavegar);
         ActualizarPosicionFlecha();
@@ -160,22 +130,21 @@ public class MenuManager : MonoBehaviour
         Vector2 nuevaPosicion = new Vector2(posicionFlechaX, botonRect.anchoredPosition.y);
 
         if (moverFlechaCoroutine != null)
-        {
             StopCoroutine(moverFlechaCoroutine);
-        }
+
         moverFlechaCoroutine = StartCoroutine(MoverFlechaSuave(nuevaPosicion));
     }
 
     IEnumerator MoverFlechaSuave(Vector2 posicionObjetivo)
     {
         float duracion = 0.15f;
-        float tiempoTranscurrido = 0f;
-        Vector2 posicionInicial = flechaSelector.anchoredPosition;
+        float tiempo = 0f;
+        Vector2 inicial = flechaSelector.anchoredPosition;
 
-        while (tiempoTranscurrido < duracion)
+        while (tiempo < duracion)
         {
-            flechaSelector.anchoredPosition = Vector2.Lerp(posicionInicial, posicionObjetivo, tiempoTranscurrido / duracion);
-            tiempoTranscurrido += Time.deltaTime;
+            flechaSelector.anchoredPosition = Vector2.Lerp(inicial, posicionObjetivo, tiempo / duracion);
+            tiempo += Time.deltaTime;
             yield return null;
         }
 
@@ -184,13 +153,11 @@ public class MenuManager : MonoBehaviour
 
     void EjecutarBotonSeleccionado()
     {
-        Debug.Log($"Ejecutando botón {indiceSeleccionado}");
         botones[indiceSeleccionado].onClick.Invoke();
     }
 
     void IniciarJuego()
     {
-        Debug.Log("Iniciando juego...");
         StartCoroutine(CambiarEscenaConRetraso(0.5f));
     }
 
@@ -203,27 +170,11 @@ public class MenuManager : MonoBehaviour
     void ReproducirSonido(AudioClip clip, float volumen)
     {
         if (audioSource != null && clip != null)
-        {
             audioSource.PlayOneShot(clip, volumen);
-        }
-    }
-
-    public void MostrarControles()
-    {
-        Debug.Log("Mostrando controles...");
-        if (panelControles != null)
-            panelControles.SetActive(true);
-    }
-
-    public void CerrarControles()
-    {
-        if (panelControles != null)
-            panelControles.SetActive(false);
     }
 
     public void SalirJuego()
     {
-        Debug.Log("Saliendo del juego...");
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

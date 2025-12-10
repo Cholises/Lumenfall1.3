@@ -181,11 +181,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5741319283406897746, guid: 99053218671a1b84c9d2d22c90271438, type: 3}
       propertyPath: targetSceneName
-      value: SampleScene
+      value: Final
       objectReference: {fileID: 0}
     - target: {fileID: 6603931572379373273, guid: 99053218671a1b84c9d2d22c90271438, type: 3}
       propertyPath: m_Name
-      value: 'SampleScene-Entry2 '
+      value: 'Final-Entry2 '
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
