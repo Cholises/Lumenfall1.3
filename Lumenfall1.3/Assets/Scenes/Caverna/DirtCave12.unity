@@ -828,6 +828,14 @@ PrefabInstance:
       propertyPath: gameOver
       value: 
       objectReference: {fileID: 1561838149}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: sonidoAtaque1
+      value: 
+      objectReference: {fileID: 8300000, guid: f49d61be62fc0434ba1ad8b477ed1984, type: 3}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: sonidoAtaque2
+      value: 
+      objectReference: {fileID: 8300000, guid: 26c720b39be895d4aad32b0a768bc17b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16261,7 +16269,7 @@ Transform:
   m_GameObject: {fileID: 756336961}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.0460615, y: -7.994111, z: -7}
+  m_LocalPosition: {x: -7.452448, y: -7.994111, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

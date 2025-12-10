@@ -7337,6 +7337,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2643053848627607656, guid: f784561fff6f7e74a84088954482a801, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 1.0000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2643053848627607656, guid: f784561fff6f7e74a84088954482a801, type: 3}
       propertyPath: LifetimeByEmitterSpeedModule.enabled
       value: 0
       objectReference: {fileID: 0}
@@ -8549,6 +8553,14 @@ PrefabInstance:
       propertyPath: gameOver
       value: 
       objectReference: {fileID: 1910447514}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: sonidoAtaque1
+      value: 
+      objectReference: {fileID: 8300000, guid: f49d61be62fc0434ba1ad8b477ed1984, type: 3}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: sonidoAtaque2
+      value: 
+      objectReference: {fileID: 8300000, guid: 26c720b39be895d4aad32b0a768bc17b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

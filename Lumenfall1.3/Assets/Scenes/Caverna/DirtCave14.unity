@@ -13800,6 +13800,14 @@ PrefabInstance:
       propertyPath: gameOver
       value: 
       objectReference: {fileID: 1171685083}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: sonidoAtaque1
+      value: 
+      objectReference: {fileID: 8300000, guid: f49d61be62fc0434ba1ad8b477ed1984, type: 3}
+    - target: {fileID: 8156738219075644807, guid: 5e45f7710514f3e49a7acfeeba854210, type: 3}
+      propertyPath: sonidoAtaque2
+      value: 
+      objectReference: {fileID: 8300000, guid: 26c720b39be895d4aad32b0a768bc17b, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

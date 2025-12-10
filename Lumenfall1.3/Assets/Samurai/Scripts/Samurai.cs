@@ -10,6 +10,12 @@ public class Samurai : MonoBehaviour
     public float multiplicadorCaida = 2.5f;
     public float multiplicadorSaltoCorto = 2f;
 
+    [Header("Sonidos")]
+public AudioClip sonidoAtaque1;
+public AudioClip sonidoAtaque2;
+private AudioSource audioSource;
+
+
     [Header("Ataque")]
     public float dashFuerza = 7f;
     public SwordHitbox swordHitbox; // Mantener para compatibilidad (opcional)
@@ -96,6 +102,13 @@ public class Samurai : MonoBehaviour
         groundFilter.useNormalAngle = true;
         groundFilter.minNormalAngle = 80f;
         groundFilter.maxNormalAngle = 100f;
+        
+        audioSource = GetComponent<AudioSource>();
+if (audioSource == null)
+{
+    audioSource = gameObject.AddComponent<AudioSource>();
+}
+
     }
 
     void Start()
@@ -173,23 +186,33 @@ public class Samurai : MonoBehaviour
             }
 
             // ✅ ATAQUE 1 (J) - Usa Attack1_Hitbox
-            if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2 && Time.time >= lastAttackTime + attackCooldown)
-            {
-                lastAttackTime = Time.time;
-                atacando = true;
-                animator.SetTrigger("Ataque");
-                ataqueActual = StartCoroutine(FinAtaque1());
-            }
+           if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2 && Time.time >= lastAttackTime + attackCooldown)
+{
+    lastAttackTime = Time.time;
+    atacando = true;
+    animator.SetTrigger("Ataque");
+
+    if (sonidoAtaque1 != null)
+        audioSource.PlayOneShot(sonidoAtaque1, 1f);
+
+    ataqueActual = StartCoroutine(FinAtaque1());
+}
+
 
             // ✅ ATAQUE 2 (K) - Usa Attack2_Hitbox
-            if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2 && Time.time >= lastAttackTime + attackCooldown)
-            {
-                lastAttackTime = Time.time;
-                atacando2 = true;
-                animator.SetTrigger("Ataque2");
-                DashLigero();
-                ataqueActual = StartCoroutine(FinAtaque2());
-            }
+           if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2 && Time.time >= lastAttackTime + attackCooldown)
+{
+    lastAttackTime = Time.time;
+    atacando2 = true;
+    animator.SetTrigger("Ataque2");
+    DashLigero();
+
+    if (sonidoAtaque2 != null)
+        audioSource.PlayOneShot(sonidoAtaque2, 1f);
+
+    ataqueActual = StartCoroutine(FinAtaque2());
+}
+
         }
         else
         {
