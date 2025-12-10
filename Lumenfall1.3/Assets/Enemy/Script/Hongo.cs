@@ -13,7 +13,7 @@ public class Hongo : MonoBehaviour
     public HongoDamageZone damageZone;
 
     [Header("Stats")]
-    public int maxHealth = 4;
+    public int maxHealth = 5;
     private int currentHealth;
 
     [Header("Movimiento")]
@@ -87,7 +87,10 @@ public class Hongo : MonoBehaviour
     void LateUpdate()
     {
         // Evitar que se encoja por las animaciones
-        transform.localScale = new Vector3(facingRight ? -3 : 3, 3, 3);
+        if (!isDead)
+        {
+            transform.localScale = new Vector3(facingRight ? -5 : 5, 5, 5);
+        }
     }
 
     void Patrol()
@@ -141,8 +144,10 @@ public class Hongo : MonoBehaviour
         DisableDamage();
     }
 
+    // ESTOS MÉTODOS SE LLAMAN DESDE ANIMATION EVENTS
     public void EnableDamage()
     {
+        Debug.Log("Hongo: EnableDamage llamado");
         if (!isDead && damageZone != null)
             damageZone.EnableDamage();
     }
@@ -157,8 +162,11 @@ public class Hongo : MonoBehaviour
     {
         Samurai sam = target.GetComponent<Samurai>();
 
+        Debug.Log("Hongo: Intento de daño al samurai");
+
         if (sam != null)
         {
+            Debug.Log("Hongo: Daño aplicado al samurai");
             sam.RecibeDanio(transform.position, 1);
         }
     }
@@ -197,8 +205,12 @@ public class Hongo : MonoBehaviour
     void Die()
     {
         isDead = true;
-        anim.SetTrigger("Die");
+        anim.SetTrigger("Death");
+        
+        // Hacer que el Rigidbody sea kinematic para que no caiga
+        rb.bodyType = RigidbodyType2D.Kinematic;
         rb.linearVelocity = Vector2.zero;
+        
         col.enabled = false;
         DisableDamage();
 
