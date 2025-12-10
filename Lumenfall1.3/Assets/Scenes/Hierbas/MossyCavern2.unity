@@ -3154,6 +3154,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4831077682969250422, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
+      propertyPath: sonidoRecoger
+      value: 
+      objectReference: {fileID: 8300000, guid: ebd0de2f930f76c41ada710c0c576e30, type: 3}
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -32.83512
@@ -21627,6 +21631,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4831077682969250422, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
+      propertyPath: sonidoRecoger
+      value: 
+      objectReference: {fileID: 8300000, guid: ebd0de2f930f76c41ada710c0c576e30, type: 3}
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -75.16824
@@ -23433,6 +23441,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4831077682969250422, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
+      propertyPath: sonidoRecoger
+      value: 
+      objectReference: {fileID: 8300000, guid: ebd0de2f930f76c41ada710c0c576e30, type: 3}
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -12.539852

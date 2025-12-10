@@ -39608,6 +39608,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4831077682969250422, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
+      propertyPath: sonidoRecoger
+      value: 
+      objectReference: {fileID: 8300000, guid: ebd0de2f930f76c41ada710c0c576e30, type: 3}
     - target: {fileID: 7306820250585272090, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.6
@@ -39925,7 +39929,7 @@ Transform:
   m_GameObject: {fileID: 1103032378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.87105, y: -0.84895706, z: -7}
+  m_LocalPosition: {x: -5.4646645, y: -0.84895706, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -20165,6 +20165,39 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &620568305 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8075242386306536889, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+  m_PrefabInstance: {fileID: 8411241232949588015}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &620568306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 620568305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a3f4718e8fd7c54f874fd76ef4ee9fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuertaBloqueada
+  barrera: {fileID: 620568308}
+  spriteBarrera: {fileID: 620568307}
+  colorBloqueado: {r: 1, g: 0, b: 0, a: 0.5}
+  particulasBloqueadas: {fileID: 0}
+  efectoDesbloqueo: {fileID: 0}
+  textoRequerimiento: {fileID: 0}
+--- !u!212 &620568307 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 1595054823551514745, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+  m_PrefabInstance: {fileID: 8411241232949588015}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &620568308 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 4351965156810441768, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+  m_PrefabInstance: {fileID: 8411241232949588015}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &751083272
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20543,7 +20576,7 @@ Transform:
   m_GameObject: {fileID: 1103032378}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.107341, y: 19.83, z: -7}
+  m_LocalPosition: {x: -10.425557, y: 19.83, z: -7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21555,6 +21588,66 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bab4e62b5ca035e48813f17b6739eb9a, type: 3}
+--- !u!1001 &8411241232949588015
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 19.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6285881842264258491, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8075242386306536889, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      propertyPath: m_Name
+      value: BarreraPuerta1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8075242386306536889, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 620568306}
+  m_SourcePrefab: {fileID: 100100000, guid: cc5ce6a3b1e25ee41b24d6484aed89d6, type: 3}
 --- !u!1001 &8772457677382180601
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21684,3 +21777,4 @@ SceneRoots:
   - {fileID: 2127843870}
   - {fileID: 1974509754}
   - {fileID: 8772457677382180601}
+  - {fileID: 8411241232949588015}

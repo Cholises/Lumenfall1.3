@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour
     public int vidaMaximaJugador = 5;
     public int vidaActualJugador = 5;
 
+    [Header("Habilidades Permanentes")]
+    public bool habilidadDobleSalto = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -25,8 +28,16 @@ public class GameManager : MonoBehaviour
     {
         vidaActualJugador = vidaMaximaJugador;
     }
-    [Header("Habilidades Permanentes")]
-public bool habilidadDobleSalto = false;
 
+    // Métodos para controlar el Double Jump
+    public void ObtenerDoubleJump()
+    {
+        habilidadDobleSalto = true;
+        Debug.Log("¡Double Jump obtenido! Puertas desbloqueadas");
+    }
 
+    public bool TieneDoubleJump()
+    {
+        return habilidadDobleSalto;
+    }
 }

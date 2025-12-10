@@ -18961,6 +18961,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4831077682969250422, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
+      propertyPath: sonidoRecoger
+      value: 
+      objectReference: {fileID: 8300000, guid: ebd0de2f930f76c41ada710c0c576e30, type: 3}
+    - target: {fileID: 4831077682969250422, guid: 0198fabf9fa072b4a8acdae871af297e, type: 3}
       propertyPath: cantidadCuracion
       value: 5
       objectReference: {fileID: 0}
