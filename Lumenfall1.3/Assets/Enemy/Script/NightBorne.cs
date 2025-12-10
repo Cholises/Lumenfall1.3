@@ -120,25 +120,25 @@ public class NightBorne : MonoBehaviour
         }
     }
 
-  public void TakeDamage(int dmg, Vector2 desde)
-{
-    if (isDead) return;
-
-    combatMode = true;
-
-    currentHealth -= dmg;
-
-    // 🔥 Mostrar daño en consola
-    Debug.Log("[NightBorne] Daño recibido: " + dmg +
-              " | Vida restante: " + currentHealth + "/" + maxHealth);
-
-    if (currentHealth <= 0)
+    public void TakeDamage(int dmg, Vector2 desde)
     {
-        Die(); // ⚠️ Llamar Die() ANTES de activar Hit
-    }
-    else
-    {
-        // 🔥 Solo activar Hit si NO está muerto
+        // ⚠️ CRÍTICO: Detener si ya está muerto
+        if (isDead) return;
+
+        combatMode = true;
+        currentHealth -= dmg;
+
+        Debug.Log("[NightBorne] Daño recibido: " + dmg +
+                  " | Vida restante: " + currentHealth + "/" + maxHealth);
+
+        // ⚠️ Verificar muerte ANTES de hacer knockback
+        if (currentHealth <= 0)
+        {
+            Die();
+            return; // ⚠️ IMPORTANTE: Salir aquí para no ejecutar más código
+        }
+
+        // Solo ejecutar si NO está muerto
         anim.SetTrigger("Hit");
         isHit = true;
 
@@ -147,7 +147,6 @@ public class NightBorne : MonoBehaviour
 
         StartCoroutine(RecoverHit());
     }
-}
 
     IEnumerator RecoverHit()
     {
@@ -159,7 +158,13 @@ public class NightBorne : MonoBehaviour
     {
         isDead = true;
         rb.linearVelocity = Vector2.zero;
+        
+        // ⚠️ Resetear triggers y bools antes de Death
+        anim.ResetTrigger("Hit");
+        anim.ResetTrigger("Attack");
         anim.SetBool("isRunning", false);
+        
+        // Ahora activar Death
         anim.SetTrigger("Death");
 
         col.enabled = false;

@@ -6,13 +6,19 @@ public class Samurai : MonoBehaviour
 {
     [Header("Movimiento")]
     public float velocidad = 5f;
-    public float fuerzaSalto = 9f;   // altura real del salto
-    public float multiplicadorCaida = 2.5f; // qué tan rápido cae
-    public float multiplicadorSaltoCorto = 2f; // para salto corto
+    public float fuerzaSalto = 9f;
+    public float multiplicadorCaida = 2.5f;
+    public float multiplicadorSaltoCorto = 2f;
 
     [Header("Ataque")]
     public float dashFuerza = 7f;
-    public SwordHitbox swordHitbox;
+    public SwordHitbox swordHitbox; // Mantener para compatibilidad (opcional)
+    
+    [Header("Hitboxes de Ataque")]
+    public GameObject attack1Hitbox; // ← Arrastra Attack1_Hitbox aquí
+    public GameObject attack2Hitbox; // ← Arrastra Attack2_Hitbox aquí
+    public float attackCooldown = 0.5f;
+    private float lastAttackTime;
 
     [Header("Vida")]
     public int vidaMaxima = 5;
@@ -25,7 +31,7 @@ public class Samurai : MonoBehaviour
     private Collider2D cuerpoCollider;
 
     [Header("Game Over")]
-    public GameOver gameOver; // ← AGREGADO: arrastra aquí tu objeto GameOver en el Inspector
+    public GameOver gameOver;
 
     [Header("Control de Nivel")]
     public float originalGravityScale = 1f;
@@ -44,14 +50,14 @@ public class Samurai : MonoBehaviour
 
     [Header("Ground Detection")]
     public LayerMask groundLayer;
+    
     [Header("Asistencia de Salto Pro")]
-    public float coyoteTime = 0.15f;     // tiempo para saltar después de caer
-    public float jumpBufferTime = 0.15f; // tiempo para guardar el salto antes de tocar suelo
+    public float coyoteTime = 0.15f;
+    public float jumpBufferTime = 0.15f;
 
     private float coyoteTimeCounter;
     private float jumpBufferCounter;
 
-    // 🔴 FILTRO REAL PARA SOLO SUELO POR ABAJO
     private ContactFilter2D groundFilter;
     private readonly Collider2D[] groundHits = new Collider2D[4];
 
@@ -75,18 +81,16 @@ public class Samurai : MonoBehaviour
         {
             swordHitbox = GetComponentInChildren<SwordHitbox>();
             if (swordHitbox == null)
-                Debug.LogWarning("No se encontró SwordHitbox en los hijos del Samurai");
+                Debug.LogWarning("No se encontró SwordHitbox (sistema antiguo)");
         }
 
-        // Intentar asignar la referencia al GameOver automáticamente si no la asignaron en el inspector.
         if (gameOver == null)
         {
-    
             if (gameOver == null)
-                Debug.LogWarning("GameOver no encontrado en la escena. Arrastra el GameOver al campo 'gameOver' del Samurai.");
+                Debug.LogWarning("GameOver no encontrado en la escena.");
         }
 
-        // ✅ CONFIGURAR FILTRO PARA DETECTAR SOLO SUELO DESDE ABAJO
+        // Configurar filtro de suelo
         groundFilter.useLayerMask = true;
         groundFilter.layerMask = groundLayer;
         groundFilter.useNormalAngle = true;
@@ -113,6 +117,12 @@ public class Samurai : MonoBehaviour
 
         if (swordHitbox != null)
             swordHitbox.DesactivarHitbox();
+        
+        // ✅ Asegurar que las hitboxes estén desactivadas al inicio
+        if (attack1Hitbox != null)
+            attack1Hitbox.SetActive(false);
+        if (attack2Hitbox != null)
+            attack2Hitbox.SetActive(false);
     }
 
     void Update()
@@ -122,13 +132,13 @@ public class Samurai : MonoBehaviour
         DetectarSueloReal();
         animator.SetBool("ensuelo", enSuelo);
 
-        // ✅ COYOTE TIME
+        // Coyote Time
         if (enSuelo)
             coyoteTimeCounter = coyoteTime;
         else
             coyoteTimeCounter -= Time.deltaTime;
 
-        // ✅ JUMP BUFFER
+        // Jump Buffer
         if (Input.GetKeyDown(KeyCode.Space))
             jumpBufferCounter = jumpBufferTime;
         else
@@ -145,7 +155,7 @@ public class Samurai : MonoBehaviour
 
             rb.linearVelocity = new Vector2(movimiento, rb.linearVelocity.y);
 
-            // ✅ ÚNICO BLOQUE DE SALTO (BORRA EL TUYO VIEJO)
+            // Sistema de salto
             if (jumpBufferCounter > 0)
             {
                 if (coyoteTimeCounter > 0)
@@ -162,19 +172,23 @@ public class Samurai : MonoBehaviour
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2)
+            // ✅ ATAQUE 1 (J) - Usa Attack1_Hitbox
+            if (Input.GetKeyDown(KeyCode.J) && !atacando && !atacando2 && Time.time >= lastAttackTime + attackCooldown)
             {
+                lastAttackTime = Time.time;
                 atacando = true;
                 animator.SetTrigger("Ataque");
-                ataqueActual = StartCoroutine(FinAtaque(0.35f, 1));
+                ataqueActual = StartCoroutine(FinAtaque1());
             }
 
-            if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2)
+            // ✅ ATAQUE 2 (K) - Usa Attack2_Hitbox
+            if (Input.GetKeyDown(KeyCode.K) && !atacando && !atacando2 && Time.time >= lastAttackTime + attackCooldown)
             {
+                lastAttackTime = Time.time;
                 atacando2 = true;
                 animator.SetTrigger("Ataque2");
                 DashLigero();
-                ataqueActual = StartCoroutine(FinAtaque(0.6f, 2));
+                ataqueActual = StartCoroutine(FinAtaque2());
             }
         }
         else
@@ -183,7 +197,6 @@ public class Samurai : MonoBehaviour
         }
     }
 
-    // ✅ DETECCIÓN REAL SOLO DESDE ABAJO (NO PAREDES / NO TECHO)
     void DetectarSueloReal()
     {
         enSuelo = false;
@@ -195,12 +208,9 @@ public class Samurai : MonoBehaviour
         {
             ContactPoint2D c = contactos[i];
 
-            // ✅ 1. Debe ser del layer Ground
             if (((1 << c.collider.gameObject.layer) & groundLayer) == 0)
                 continue;
 
-            // ✅ 2. La normal debe apuntar HACIA ARRIBA (suelo real)
-            // Esto descarta paredes y techos
             if (c.normal.y > 0.6f)
             {
                 enSuelo = true;
@@ -216,21 +226,53 @@ public class Samurai : MonoBehaviour
         rb.linearVelocity = new Vector2(direccion * dashFuerza, rb.linearVelocity.y);
     }
 
-    IEnumerator FinAtaque(float t, int tipoAtaque)
+   // ✅ Corrutina para Ataque 1
+IEnumerator FinAtaque1()
+{
+    // Esperar al frame exacto del golpe
+    yield return new WaitForSeconds(0.2f); // ← Ajusta este valor
+
+    if (attack1Hitbox != null)
     {
-        yield return new WaitForSeconds(0.05f);
-
-        if (swordHitbox != null)
-            swordHitbox.ActivarHitbox(tipoAtaque);
-
-        yield return new WaitForSeconds(t);
-
-        if (swordHitbox != null)
-            swordHitbox.DesactivarHitbox();
-
-        atacando = false;
-        atacando2 = false;
+        attack1Hitbox.SetActive(true);
+        Debug.Log("🗡️ Attack1_Hitbox activada");
     }
+
+    // Hitbox activa solo por un momento corto
+    yield return new WaitForSeconds(0.1f); // ← Muy corto para contacto preciso
+
+    if (attack1Hitbox != null)
+    {
+        attack1Hitbox.SetActive(false);
+        Debug.Log("🗡️ Attack1_Hitbox desactivada");
+    }
+
+    atacando = false;
+}
+
+// ✅ Corrutina para Ataque 2
+IEnumerator FinAtaque2()
+{
+    // Esperar al frame exacto del golpe
+    yield return new WaitForSeconds(0.25f); // ← Ajusta este valor
+
+    if (attack2Hitbox != null)
+    {
+        attack2Hitbox.SetActive(true);
+        Debug.Log("⚔️ Attack2_Hitbox activada");
+    }
+
+    // Hitbox activa solo por un momento corto
+    yield return new WaitForSeconds(0.1f); // ← Muy corto
+
+    if (attack2Hitbox != null)
+    {
+        attack2Hitbox.SetActive(false);
+        Debug.Log("⚔️ Attack2_Hitbox desactivada");
+    }
+
+    atacando2 = false;
+}
 
     public void RecibeDanio(Vector2 direccion, int cantDanio)
     {
@@ -288,17 +330,20 @@ public class Samurai : MonoBehaviour
             StopCoroutine(ataqueActual);
             if (swordHitbox != null)
                 swordHitbox.DesactivarHitbox();
+            if (attack1Hitbox != null)
+                attack1Hitbox.SetActive(false);
+            if (attack2Hitbox != null)
+                attack2Hitbox.SetActive(false);
         }
 
         animator.SetTrigger("Death");
         rb.linearVelocity = Vector2.zero;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
-        // Mostramos el Game Over (si está asignado)
         if (gameOver != null)
             gameOver.MostrarGameOver();
         else
-            Debug.LogWarning("gameOver es null en Samurai.Morir() — asigna el GameOver en el Inspector o asegúrate de que exista un GameOver en la escena.");
+            Debug.LogWarning("gameOver es null — asigna el GameOver en el Inspector.");
 
         StartCoroutine(RespawnDespues(2f));
     }
@@ -352,12 +397,10 @@ public class Samurai : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Caída más rápida
         if (rb.linearVelocity.y < 0)
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorCaida - 1) * Time.fixedDeltaTime;
         }
-        // Salto corto si sueltas rápido el botón
         else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (multiplicadorSaltoCorto - 1) * Time.fixedDeltaTime;
