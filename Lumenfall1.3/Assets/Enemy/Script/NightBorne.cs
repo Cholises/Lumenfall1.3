@@ -171,4 +171,8 @@ public class NightBorne : MonoBehaviour
     {
         return currentHealth;
     }
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes

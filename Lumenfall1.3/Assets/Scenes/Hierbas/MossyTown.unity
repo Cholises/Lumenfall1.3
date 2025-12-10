@@ -295,6 +295,10 @@ PrefabInstance:
       value: -2.3297215
       objectReference: {fileID: 0}
     - target: {fileID: 5741319283406897746, guid: 99053218671a1b84c9d2d22c90271438, type: 3}
+      propertyPath: spawnPointName
+      value: Entry0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5741319283406897746, guid: 99053218671a1b84c9d2d22c90271438, type: 3}
       propertyPath: targetSceneName
       value: SampleScene
       objectReference: {fileID: 0}
