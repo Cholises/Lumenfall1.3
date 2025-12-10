@@ -120,30 +120,34 @@ public class NightBorne : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int dmg, Vector2 desde)
+  public void TakeDamage(int dmg, Vector2 desde)
+{
+    if (isDead) return;
+
+    combatMode = true;
+
+    currentHealth -= dmg;
+
+    // 🔥 Mostrar daño en consola
+    Debug.Log("[NightBorne] Daño recibido: " + dmg +
+              " | Vida restante: " + currentHealth + "/" + maxHealth);
+
+    if (currentHealth <= 0)
     {
-        if (isDead) return;
-
-        combatMode = true;
-
-        currentHealth -= dmg;
-
-        // 🔥 Mostrar daño en consola
-        Debug.Log("[NightBorne] Daño recibido: " + dmg +
-                  " | Vida restante: " + currentHealth + "/" + maxHealth);
-
-        // 🔥 Activar animación de Hurt
+        Die(); // ⚠️ Llamar Die() ANTES de activar Hit
+    }
+    else
+    {
+        // 🔥 Solo activar Hit si NO está muerto
         anim.SetTrigger("Hit");
         isHit = true;
 
         float dir = Mathf.Sign(transform.position.x - desde.x);
         rb.linearVelocity = new Vector2(dir * 3f, 0);
 
-        if (currentHealth <= 0)
-            Die();
-        else
-            StartCoroutine(RecoverHit());
+        StartCoroutine(RecoverHit());
     }
+}
 
     IEnumerator RecoverHit()
     {
